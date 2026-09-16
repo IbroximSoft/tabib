@@ -20,12 +20,20 @@
      chiqarib, qogʻozni agʻdarib, ichki varaqni chiqariladi.
 
    TIZIMDAN TOʻLDIRILADI
-     familiya, ism, telefon, xona raqami, kelgan sanasi, tashxis,
-     I-kurs boshlanish sanasi (= kelgan sanasi).
+     familiya, ism, otasining ismi, telefon, tugʻilgan sanasi (т.й),
+     manzil (viloyat/tuman/mahalla/koʻcha/uy/kvartira — 27-fayl),
+     xona raqami va turi, kelgan sanasi, tashxis.
+     Bemor bu maʼlumotlarni bermagan/toʻldirilmagan bo'lsa, mos quti
+     avvalgidek boʻsh qoladi — qo'lda yozish uchun.
    QOʻLDA YOZILADI (bazada bunday maydon yoʻq)
-     otasining ismi, manzil, tugʻilgan sanasi (т.й), № , imzolar.
+     № , I–IV kurs sanalari, imzolar, bemorning tilxatdagi imzosi
+     ustidagi toʻliq ismi (bemor oʻzi yozadi).
    ============================================================ */
 import { esc, kun } from '../lib/chop'
+
+/* 27_bemor_malumotlari.sql: otasining ismi, tugʻilgan sana, manzil,
+   xona turi endi bazadan keladi (bemor to'ldirilgan bo'lsa) — bo'lmasa
+   quti bo'sh qoladi, avvalgidek qo'lda yoziladi. */
 
 /* Tilxat matnidagi tabib ismi */
 export const TABIB = 'Abdurahimov Muhiddin Abduvohobovich'
@@ -182,6 +190,11 @@ body { margin: 0; font: 10px/1.3 "Times New Roman", "Liberation Serif", Georgia,
            margin: 0 auto 6mm; box-shadow: 0 1px 5px rgba(0,0,0,.28) }
   .varaq:last-child { margin-bottom: 0 }
 }
+
+/* ⭐ 27_bemor_malumotlari.sql: manzil qutisida label yonida qiymat.
+   Faqat QO'SHILGAN — yuqoridagi .manzil .m qoidasi o'zgarmagan. */
+.manzil .m .v { flex: 1; text-align: left; overflow: hidden;
+                text-overflow: ellipsis; white-space: nowrap; padding-right: 1.5mm }
 `
 
 /* ------------------------------------------------------------
@@ -247,7 +260,13 @@ function varaq(chap, ong) {
 
 /* 1-bet — muqova: markaz sarlavhasi, bemor maʼlumotlari, tashxis */
 function bet1(y) {
-  const xona = y.xona ? `${esc(y.xona)}-хона` : ''
+  const xona = y.xona
+    ? `${esc(y.xona)}-хона${y.xona_turi ? ' ' + esc(y.xona_turi) : ''}`
+    : ''
+  /* qiymat + label bitta qatorda: qiymat bo'lmasa quti avvalgidek
+     bo'sh (qo'lda to'ldirish uchun) */
+  const m = (qiymat, label) =>
+    `<div class="m">${qiymat ? `<span class="v">${esc(qiymat)}</span>` : ''}${label}</div>`
   return `
 <div class="shapka">
   <div class="yon">${KARTA_MARKAZ.kir.map(esc).join('<br>')}</div>
@@ -266,13 +285,13 @@ function bet1(y) {
     <div class="qat"><label>Исми:</label>
       <span class="quti">${esc(y.ism || '')}</span></div>
     <div class="qat"><label>Отаасини исми:</label>
-      <span class="quti"></span></div>
+      <span class="quti">${esc(y.otasining_ismi || '')}</span></div>
 
     <div class="tel"><label>Тел</label>
       <div class="ust">
         <div class="quti">${esc(y.telefon || '')}</div>
         <div class="quti"></div>
-        <div class="quti oxir"><span></span><span class="tj">т.й</span></div>
+        <div class="quti oxir"><span>${esc(kun(y.tugilgan_sana))}</span><span class="tj">т.й</span></div>
       </div>
     </div>
 
@@ -281,11 +300,11 @@ function bet1(y) {
 
   <div class="ong">
     <div class="manzil">
-      <div class="m">viloyati</div>
-      <div class="m">shahri</div>
-      <div class="m">МФЙ</div>
-      <div class="m">кўчаси</div>
-      <div class="ikkov"><div class="m">уй</div><div class="m">хонадон</div></div>
+      ${m(y.viloyat, 'вилояти')}
+      ${m(y.tuman, 'шахри')}
+      ${m(y.mahalla, 'МФЙ')}
+      ${m(y.kocha, 'кўчаси')}
+      <div class="ikkov">${m(y.uy_raqami, 'уй')}${m(y.kvartira, 'хонадон')}</div>
     </div>
 
     <div class="xona-blok">
@@ -306,7 +325,10 @@ function bet1(y) {
 /* 2-bet — I va II kurs (I kurs sanasi kelgan sanadan olinadi) */
 function bet2(y) {
   const s = sanaBolak(y.kirish_sana)
-  return kursBlok('I', s) + kursBlok('II', { kun: '', oy: '', yil: s.yil })
+  /* Mijoz talabi: I-kurs sanasi ham endi qo'lda yoziladi —
+     II bilan bir xil, faqat yil avtomatik qoladi. */
+  const bosh = { kun: '', oy: '', yil: s.yil }
+  return kursBlok('I', bosh) + kursBlok('II', bosh)
 }
 
 /* 3-bet — III va IV kurs */
@@ -323,7 +345,7 @@ function bet4(y) {
 ${chiziqlar(7)}
 
 <div class="tilxat-sar">ТИЛХАТ</div>
-<div class="men"><span>Мен,</span><u>${esc(y.fish || '')}</u></div>
+<div class="men"><span>Мен,</span><u></u></div>
 <div class="men-izoh">(Беморнинг исми, шарифи, отасининг исми тўлиқ ёзилади)</div>
 
 <div class="tmatn">

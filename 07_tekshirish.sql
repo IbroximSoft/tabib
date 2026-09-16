@@ -79,7 +79,10 @@ WITH f(tartib, fayl, bor) AS (
                     AND column_name='yashirin')),
     (26, '26_tahrir_ochirish.sql',
          EXISTS (SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
-                  WHERE n.nspname='public' AND p.proname='bemor_ochir'))
+                  WHERE n.nspname='public' AND p.proname='bemor_ochir')),
+    (27, '27_bemor_malumotlari.sql',
+         EXISTS (SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
+                  WHERE n.nspname='public' AND p.proname='bemor_malumotlari_ornatildi'))
 )
 SELECT
   fayl AS "fayl",

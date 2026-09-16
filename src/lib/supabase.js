@@ -218,6 +218,23 @@ export const amal = {
       p_hamrohlar: p.hamrohlar ?? []
     }),
 
+  /* Otasining ismi, tugʻilgan sana, manzil — 27_bemor_malumotlari.sql.
+     bemor_qabul() imzosiga tegmaslik uchun ro'yxatga olingandan
+     KEYIN, alohida chaqiriladi (tashxisYoz bilan bir xil qolipda). */
+  bemorMalumot: (yotqizishId, p) =>
+    supabase.rpc('bemor_malumot_yoz', {
+      p_yotqizish: yotqizishId,
+      p_otasining_ismi: p.otasining_ismi || null,
+      p_tugilgan_sana: p.tugilgan_sana || null,
+      p_viloyat: p.viloyat || null,
+      p_tuman: p.tuman || null,
+      p_mahalla: p.mahalla || null,
+      p_kocha: p.kocha || null,
+      p_uy_raqami: p.uy_raqami || null,
+      p_kvartira: p.kvartira || null,
+      p_fuqaroligi: p.fuqaroligi || null
+    }),
+
   bemorJoylashtir: (p) =>
     supabase.rpc('bemor_joylashtir', {
       p_familiya: p.familiya,

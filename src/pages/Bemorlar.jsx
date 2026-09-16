@@ -7,6 +7,7 @@ import Modal, { Xabar } from '../components/Modal'
 import { chopEt, kunVaqt } from '../lib/chop'
 import { kartaHtml, kartaCss, TOMONLAR } from '../print/karta'
 import { chekHtml, chekCss } from '../print/chek'
+import { VILOYATLAR, SNG_DAVLATLAR } from '../lib/hududlar'
 
 /* ---------- yordamchilar ---------- */
 const son = (n) => (Number(n) || 0).toLocaleString('ru-RU').replace(/\u00A0/g, ' ')
@@ -354,7 +355,12 @@ function YangiBemor({ ref_, boshJoylar, can, yop, tugadi, ochBemor, boshKoyka, b
     kirish: bronBosh?.kirish || bugun(),
     reja_chiqish: bronBosh?.reja_chiqish || qoshKun(bugun(), ref_.kursKun),
     koyka_id: boshKoyka ? String(boshKoyka) : '', oldindan: '',
-    tashxis: bronBosh?.tashxis || ''
+    tashxis: bronBosh?.tashxis || '',
+    /* Qo'shimcha ma'lumotlar — 27_bemor_malumotlari.sql.
+       Hammasi ixtiyoriy: bo'sh qoldirilsa kartada qo'lda
+       to'ldirish uchun joy bo'sh qolaveradi. */
+    otasining_ismi: '', tugilgan_sana: '',
+    viloyat: '', tuman: '', mahalla: '', kocha: '', uy_raqami: '', kvartira: ''
   })
   const [hamrohlar, setHamrohlar] = useState([])
   const [xato, setXato] = useState('')
@@ -366,6 +372,20 @@ function YangiBemor({ ref_, boshJoylar, can, yop, tugadi, ochBemor, boshKoyka, b
   const [bronXabar, setBronXabar] = useState('')  // bron qo'llanilgach izoh
 
   const set = (k, x) => setV((s) => ({ ...s, [k]: x }))
+
+  /* Viloyat (yoki chet elda mamlakat) o'zgarsa — tuman ro'yxati
+     mos kelmay qolgani uchun tozalanadi. */
+  const tumanlar = useMemo(
+    () => (VILOYATLAR.find((r) => r.nomi === v.viloyat) || {}).tumanlar || [],
+    [v.viloyat]
+  )
+  useEffect(() => {
+    if (v.tuman && !tumanlar.includes(v.tuman)) set('tuman', '')
+  }, [tumanlar]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  /* Chet el fuqarosi belgisi almashsa — viloyat/tuman maydoni
+     boshqa ro'yxatga ishora qilganda eskisi qolib ketmasin. */
+  useEffect(() => { set('viloyat', ''); set('tuman', '') }, [v.chet_el]) // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ---- hamrohlar ---- */
   const hQosh = (roli) => setHamrohlar((s) => [...s, {
@@ -528,6 +548,23 @@ function YangiBemor({ ref_, boshJoylar, can, yop, tugadi, ochBemor, boshKoyka, b
       const { error: te } = await amal.tashxisYoz(Number(data), v.tashxis.trim())
       if (te) ogoh = ' (tashxis yozilmadi — kartadan qoʻshing)'
     }
+    /* Otasining ismi, tugʻilgan sana, manzil — xuddi tashxis kabi
+       alohida yoziladi. Hech biri to'ldirilmagan bo'lsa so'rov
+       umuman yuborilmaydi. */
+    const malumotBorMi = v.otasining_ismi.trim() || v.tugilgan_sana || v.viloyat.trim()
+      || v.tuman.trim() || v.mahalla.trim() || v.kocha.trim() || v.uy_raqami.trim() || v.kvartira.trim()
+    if (malumotBorMi && data) {
+      const { error: me } = await amal.bemorMalumot(Number(data), {
+        otasining_ismi: v.otasining_ismi.trim(),
+        tugilgan_sana: v.tugilgan_sana || null,
+        viloyat: v.chet_el ? '' : v.viloyat.trim(),
+        tuman: v.chet_el ? '' : v.tuman.trim(),
+        mahalla: v.mahalla.trim(), kocha: v.kocha.trim(),
+        uy_raqami: v.uy_raqami.trim(), kvartira: v.kvartira.trim(),
+        fuqaroligi: v.chet_el ? v.viloyat.trim() : ''
+      })
+      if (me) ogoh = ' (qoʻshimcha maʼlumotlar yozilmadi — kartadan qoʻshing)'
+    }
     if (bron?.bron_id && data) {
       const { error: be } = await amal.bronQabulBelgila(bron.bron_id, Number(data))
       if (be) ogoh = ' (bron belgilanmadi — Bronlar boʻlimidan qoʻlda yoping)'
@@ -656,6 +693,57 @@ function YangiBemor({ ref_, boshJoylar, can, yop, tugadi, ochBemor, boshKoyka, b
             <option value="0">Oʻzbekiston</option>
             <option value="1">Chet el fuqarosi</option>
           </select>
+        </div>
+
+        {/* 27_bemor_malumotlari.sql: bemor kartasida chiqadigan
+            qo'shimcha ma'lumotlar. Hammasi ixtiyoriy — bo'sh
+            qoldirilsa kartada qo'lda to'ldirish uchun joy qolaveradi. */}
+        <div className="field">
+          <label htmlFor="otasi">Otasining ismi</label>
+          <input id="otasi" value={v.otasining_ismi}
+            onChange={(e) => set('otasining_ismi', e.target.value)} placeholder="Baxtiyorovich" />
+        </div>
+        <div className="field">
+          <label htmlFor="tugsana">Tugʻilgan sanasi</label>
+          <input id="tugsana" type="date" value={v.tugilgan_sana}
+            onChange={(e) => set('tugilgan_sana', e.target.value)} />
+        </div>
+
+        <div className="field">
+          <label htmlFor="vil">{v.chet_el ? 'Fuqaroligi davlati' : 'Viloyat'}</label>
+          <select id="vil" value={v.viloyat} onChange={(e) => set('viloyat', e.target.value)}>
+            <option value="">— tanlanmagan —</option>
+            {(v.chet_el ? SNG_DAVLATLAR : VILOYATLAR.map((r) => r.nomi)).map((n) => (
+              <option key={n} value={n}>{n}</option>
+            ))}
+          </select>
+        </div>
+        {!v.chet_el && (
+          <div className="field">
+            <label htmlFor="tum">Tuman</label>
+            <select id="tum" value={v.tuman} onChange={(e) => set('tuman', e.target.value)}
+              disabled={!v.viloyat}>
+              <option value="">— tanlanmagan —</option>
+              {tumanlar.map((n) => <option key={n} value={n}>{n}</option>)}
+            </select>
+          </div>
+        )}
+
+        <div className="field">
+          <label htmlFor="mfy">Mahalla</label>
+          <input id="mfy" value={v.mahalla} onChange={(e) => set('mahalla', e.target.value)} />
+        </div>
+        <div className="field">
+          <label htmlFor="koch">Koʻcha</label>
+          <input id="koch" value={v.kocha} onChange={(e) => set('kocha', e.target.value)} />
+        </div>
+        <div className="field">
+          <label htmlFor="uy">Uy raqami</label>
+          <input id="uy" value={v.uy_raqami} onChange={(e) => set('uy_raqami', e.target.value)} />
+        </div>
+        <div className="field">
+          <label htmlFor="kv">Kvartira</label>
+          <input id="kv" value={v.kvartira} onChange={(e) => set('kvartira', e.target.value)} />
         </div>
 
         <div className="field">
