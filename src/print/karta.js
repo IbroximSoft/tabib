@@ -64,7 +64,7 @@ export const TOMONLAR = [
 export const kartaCss = `
 @page { size: A4 landscape; margin: 6mm; }
 * { box-sizing: border-box; }
-body { margin: 0; font: 10px/1.3 "Times New Roman", "Liberation Serif", Georgia, serif;
+body { margin: 0; font: 12px/1.35 "Times New Roman", "Liberation Serif", Georgia, serif;
        color: #000; -webkit-print-color-adjust: exact; print-color-adjust: exact }
 
 /* --- bitta A4 varaqning bir tomoni --- */
@@ -79,18 +79,18 @@ body { margin: 0; font: 10px/1.3 "Times New Roman", "Liberation Serif", Georgia,
 
 /* ============ 1-BET: MUQOVA ============ */
 .shapka { display: flex; align-items: flex-start; gap: 1.5mm; margin-top: 1mm }
-.shapka .yon { flex: 1; text-align: center; font-size: 6.6px; line-height: 1.45;
+.shapka .yon { flex: 1; text-align: center; font-size: 9px; line-height: 1.4;
                font-weight: 700; text-transform: uppercase }
 .gerb { width: 13mm; height: 13mm; flex: none; object-fit: contain; margin-top: -1mm }
 
 .nomer { display: flex; align-items: stretch; margin-top: .6mm; width: 34mm }
-.nomer b { font-weight: 700; font-size: 6.5px; border: 1px solid #000;
+.nomer b { font-weight: 700; font-size: 8.5px; border: 1px solid #000;
            width: 5mm; display: flex; align-items: center; justify-content: center }
 .nomer i { flex: 1; border: 1px solid #000; border-left: 0; height: 4.4mm; display: block }
 
-.bosh { text-align: center; font-weight: 700; margin: 3mm 0 0; font-size: 12.5px;
+.bosh { text-align: center; font-weight: 700; margin: 3mm 0 0; font-size: 15px;
         line-height: 1.35; text-transform: uppercase }
-.bosh2 { text-align: center; font-weight: 700; font-size: 16.5px; margin: 1mm 0 4mm }
+.bosh2 { text-align: center; font-weight: 700; font-size: 19px; margin: 1mm 0 4mm }
 .bosh2 u { display: inline-block; min-width: 34mm; border-bottom: 1px solid #000;
            text-decoration: none; margin-left: 1mm }
 
@@ -100,28 +100,28 @@ body { margin: 0; font: 10px/1.3 "Times New Roman", "Liberation Serif", Georgia,
 
 /* chap ustun: Фамилия / Исми / Отаасини исми */
 .qat { display: flex; align-items: flex-end; gap: 1.5mm; margin-bottom: 4mm }
-.qat > label { flex: none; font-size: 8.5px; font-weight: 700; padding-bottom: .8mm }
-.quti { flex: 1; border: 1px solid #000; height: 7mm; padding: 0 1.2mm;
-        display: flex; align-items: center; font-size: 10px; font-weight: 700;
+.qat > label { flex: none; font-size: 11px; font-weight: 700; padding-bottom: .8mm }
+.quti { flex: 1; border: 1px solid #000; height: 8mm; padding: 0 1.2mm;
+        display: flex; align-items: center; font-size: 13px; font-weight: 700;
         overflow: hidden; white-space: nowrap }
 
 /* Тел — uchta ustma-ust quti, oxirgisi "т.й" */
 .tel { display: flex; gap: 1.5mm; align-items: flex-start; margin-bottom: 4mm }
-.tel > label { flex: none; font-size: 8.5px; font-weight: 700; padding-top: 1.8mm }
+.tel > label { flex: none; font-size: 11px; font-weight: 700; padding-top: 1.8mm }
 .tel .ust { flex: none; width: 66% }
 .tel .quti { margin-bottom: -1px }
 .tel .quti.oxir { justify-content: space-between }
-.tel .tj { font-size: 8px; font-weight: 700 }
+.tel .tj { font-size: 10.5px; font-weight: 700 }
 
-.kelgan { font-size: 8.5px; font-weight: 700; margin-top: 6mm }
+.kelgan { font-size: 11px; font-weight: 700; margin-top: 6mm }
 .kelgan u { display: inline-block; min-width: 26mm; border-bottom: 1px solid #000;
-            text-decoration: none; text-align: center; font-size: 10px; margin-left: 1mm }
+            text-decoration: none; text-align: center; font-size: 13px; margin-left: 1mm }
 
 /* oʻng ustun: manzil jadvali */
 .manzil { border: 1px solid #000; border-bottom: 0 }
-.manzil .m { border-bottom: 1px solid #000; height: 5.8mm; padding: 0 1.2mm;
+.manzil .m { border-bottom: 1px solid #000; height: 6.6mm; padding: 0 1.2mm;
              display: flex; align-items: center; justify-content: flex-end;
-             font-size: 8.5px; font-weight: 700 }
+             font-size: 11px; font-weight: 700 }
 .manzil .ikkov { display: flex; border-bottom: 1px solid #000 }
 .manzil .ikkov .m { flex: 1; border-bottom: 0 }
 .manzil .ikkov .m:first-child { border-right: 1px solid #000; flex: none; width: 40% }
@@ -129,56 +129,56 @@ body { margin: 0; font: 10px/1.3 "Times New Roman", "Liberation Serif", Georgia,
 /* oʻng ustun: xona va kurs qatorlari */
 .xona-blok { border: 1px solid #000; border-bottom: 0; margin-top: 7mm }
 .xona-blok .x1 { border-bottom: 1px solid #000; padding: 2mm 1.5mm;
-                 display: flex; align-items: center; gap: 1.5mm; font-size: 8.5px;
+                 display: flex; align-items: center; gap: 1.5mm; font-size: 11px;
                  font-weight: 700 }
-.xona-blok .x1 .q { border: 1px solid #000; height: 6mm; min-width: 22mm; padding: 0 1.5mm;
+.xona-blok .x1 .q { border: 1px solid #000; height: 7mm; min-width: 22mm; padding: 0 1.5mm;
                     display: flex; align-items: center; justify-content: center;
-                    font-size: 10px; font-weight: 700 }
-.xona-blok .k { border-bottom: 1px solid #000; height: 6.4mm; padding: 0 1.5mm;
-                display: flex; align-items: center; font-size: 8.5px; font-weight: 700 }
+                    font-size: 13px; font-weight: 700 }
+.xona-blok .k { border-bottom: 1px solid #000; height: 7.2mm; padding: 0 1.5mm;
+                display: flex; align-items: center; font-size: 11px; font-weight: 700 }
 
 .tashxis { margin-top: 8mm }
-.tashxis b { font-size: 11px }
-.tashxis .qiymat { font-size: 11px; font-weight: 700; margin-left: 2mm }
+.tashxis b { font-size: 14px }
+.tashxis .qiymat { font-size: 14px; font-weight: 700; margin-left: 2mm }
 .tashxis .chiz { border-bottom: 1px solid #000; height: 9mm }
 
 /* ============ 4-BET: YAKUN + ТИЛХАТ ============ */
-.yakun-sar { font-size: 8.5px; font-weight: 700; margin: 1mm 0 0 }
+.yakun-sar { font-size: 10.5px; font-weight: 700; margin: 1mm 0 0 }
 .chiz { border-bottom: 1px solid #000; height: 11.8mm }
 
-.tilxat-sar { text-align: center; font-weight: 700; font-size: 10.5px;
-              margin: 7mm 0 6mm; letter-spacing: .06em }
-.men { display: flex; align-items: flex-end; gap: 1.5mm; font-size: 10px }
+.tilxat-sar { text-align: center; font-weight: 700; font-size: 12.5px;
+              margin: 6mm 0 5mm; letter-spacing: .06em }
+.men { display: flex; align-items: flex-end; gap: 1.5mm; font-size: 12px }
 .men u { flex: 1; border-bottom: 1px solid #000; text-decoration: none;
-         height: 6mm; text-align: center; font-weight: 700; font-size: 10.5px;
+         height: 6mm; text-align: center; font-weight: 700; font-size: 12.5px;
          padding-bottom: .5mm }
-.men-izoh { text-align: center; font-size: 6.4px; margin: .6mm 0 0 }
-.tmatn { font-size: 10px; line-height: 2.5; margin: 4mm 0 0 }
+.men-izoh { text-align: center; font-size: 8px; margin: .6mm 0 0 }
+.tmatn { font-size: 12px; line-height: 2.05; margin: 3mm 0 0 }
 .tmatn .ich { display: block; text-indent: 6mm }
-.tilxat-imzo { display: flex; gap: 10mm; margin-top: 15mm; padding: 0 4mm }
-.tilxat-imzo > div { flex: 1; font-size: 10px }
+.tilxat-imzo { display: flex; gap: 10mm; margin-top: 12mm; padding: 0 4mm }
+.tilxat-imzo > div { flex: 1; font-size: 12px }
 .tilxat-imzo .ch { border-bottom: 1px solid #000; height: 7mm; margin-top: 1mm }
 
 /* ============ 2- va 3-BET: KURS MUOLAJASI ============ */
-.kurs { margin-bottom: 8mm }
+.kurs { margin-bottom: 6mm }
 .kurs:last-child { margin-bottom: 0 }
-.kurs-sar { display: flex; align-items: baseline; margin-bottom: 2mm }
-.kurs-sar .nomi { flex: 1; text-align: center; font-weight: 700; font-size: 9.5px;
+.kurs-sar { display: flex; align-items: baseline; margin-bottom: 1.5mm }
+.kurs-sar .nomi { flex: 1; text-align: center; font-weight: 700; font-size: 11px;
                   padding-left: 16mm }
-.kurs-sar .sn { flex: none; font-size: 8.5px; white-space: nowrap }
+.kurs-sar .sn { flex: none; font-size: 10px; white-space: nowrap }
 .kurs-sar .sn u { display: inline-block; min-width: 5mm; border-bottom: 1px solid #000;
                   text-decoration: none; text-align: center }
 .kurs-sar .sn u.oy { min-width: 11mm }
 
 .kqator { display: flex; align-items: flex-end; gap: 1.5mm; height: 12.4mm }
-.kqator > label { flex: none; font-size: 8.5px; padding-bottom: .6mm }
+.kqator > label { flex: none; font-size: 10px; padding-bottom: .6mm }
 .kliniya { flex: 1; position: relative; height: 10mm; border-bottom: 1px solid #000 }
 .kliniya .im { position: absolute; right: 0; bottom: 2.4mm; width: 27mm; height: 5mm;
                border: 1px solid #000 }
 .kliniya .iz { position: absolute; right: 0; bottom: .2mm; width: 27mm;
-               text-align: center; font-size: 5.8px; font-style: italic }
-.kqator .kn { flex: none; width: 11mm; font-size: 8.5px; padding-bottom: .6mm }
-.kqator .diag { flex: none; width: 23mm; height: 8.4mm; border: 1px solid #000 }
+               text-align: center; font-size: 7px; font-style: italic }
+.kqator .kn { flex: none; width: 12mm; font-size: 10px; padding-bottom: .6mm }
+.kqator .diag { flex: none; width: 22mm; height: 8.4mm; border: 1px solid #000 }
 .kqator .diag svg { display: block; width: 100%; height: 100% }
 
 /* Ekranda koʻrish uchun (modal ichidagi oldindan koʻrish).
