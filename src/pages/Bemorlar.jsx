@@ -794,12 +794,12 @@ function BemorKarta({ y, rol, can, ochish, yop, tugadi, yangila }) {
   const [hamroh, setHamroh] = useState([])
   const [aylantir, setAylantir] = useState(false)
   const [tab, setTab] = useState('malumot')
-  /* karta qaysi tomoni ko'rsatilyapti/chiqarilyapti: 'old' yoki 'orqa' */
-  const [tomon, setTomon] = useState('old')
+  /* karta qaysi varagʻi koʻrsatilyapti/chiqarilyapti: 'tash' yoki 'ich' */
+  const [tomon, setTomon] = useState('tash')
 
   const kartaChop = useCallback((t) => {
-    const nom = t === 'old' ? 'old tomoni'
-      : t === 'orqa' ? 'orqa tomoni' : 'ikki tomoni'
+    const nom = t === 'tash' ? 'tashqi varaq'
+      : t === 'ich' ? 'ichki varaq' : 'ikkala varaq'
     chopEt({
       html: kartaHtml(y, t), css: kartaCss,
       sarlavha: `Kasallik varaqasi — ${y.fish} (${nom})`
@@ -1351,12 +1351,12 @@ function KartaTab({ y, tomon, setTomon, chop }) {
   return (
     <>
       <div className="alert info" style={{ marginBottom: 12, display: 'block' }}>
-        <b>Bitta A4 varaq, yotiq holatda.</b>
+        <b>Bitta A4 varaq, yotiq holatda — qogʻozdagi kartaning aynan oʻzi.</b>
         <p className="muted" style={{ margin: '4px 0 0' }}>
-          Varaq oʻrtasidan ikkiga boʻlinadi — bir tomonida ikkita bet. Printerda
-          qogʻoz yoʻnalishini <b>“Landscape / Yotiq”</b> qilib qoʻying va
-          <b> masshtabni 100%</b> da qoldiring. Avval <b>old tomonini</b> chiqaring,
-          soʻng qogʻozni agʻdarib <b>orqa tomonini</b> chiqaring.
+          Varaq oʻrtasidan buklanadi, 4 ta bet chiqadi. Printerda qogʻoz
+          yoʻnalishini <b>“Landscape / Yotiq”</b> qilib qoʻying va
+          <b> masshtabni 100%</b> da qoldiring. Avval <b>tashqi varaqni</b>{' '}
+          chiqaring, soʻng qogʻozni agʻdarib <b>ichki varaqni</b> chiqaring.
         </p>
       </div>
 
@@ -1375,11 +1375,11 @@ function KartaTab({ y, tomon, setTomon, chop }) {
       </div>
 
       <div className="hint" style={{ marginTop: 8 }}>
-        {joriy.tavsif}. Familiya, ism, telefon, yoshi, kelgan sanasi, xona va
-        tashxis tizimdan toʻldiriladi; otasining ismi va manzil qoʻlda
-        yoziladigan chiziq boʻlib chiqadi.{' '}
+        {joriy.tavsif}. Familiya, ism, telefon, xona raqami, kelgan sanasi va
+        tashxis tizimdan toʻldiriladi; otasining ismi, manzil, tugʻilgan sanasi
+        (т.й) va № qoʻlda yoziladi.{' '}
         <button className="matn" onClick={() => chop()}>
-          Ikkala tomonini ketma-ket chiqarish
+          Ikkala varaqni ketma-ket chiqarish
         </button>
       </div>
     </>
