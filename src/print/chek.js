@@ -13,33 +13,46 @@ export const MARKAZ = {
 
 const USUL = { naqd: 'Naqd', karta: 'Plastik karta', otkazma: 'Pul o‘tkazma' }
 
+/* TERMAL PRINTER UCHUN.
+   Termal kalla faqat QORA yoki OQ nuqta bosadi — kulrang yo'q.
+   Shuning uchun:
+     · ingichka (Courier, light) shrift emas — QALIN sans;
+     · mayda o'lcham emas — 15px dan boshlanadi;
+     · punktir chiziq emas — to'liq qora chiziq;
+     · belgi-ikonka (☎) emas — oddiy harf.
+   Aks holda nozik chiziqlar kulrangga aylanib, xira bosiladi. */
 export const chekCss = `
-@page { size: 80mm auto; margin: 3mm 3mm 6mm; }
+@page { size: 80mm auto; margin: 4mm 4mm 8mm; }
 * { box-sizing: border-box; }
 body {
-  margin: 0; width: 74mm;
-  font: 12px/1.35 "Courier New", "DejaVu Sans Mono", monospace;
+  margin: 0; width: 72mm;
+  font: 700 15px/1.45 Arial, "Helvetica Neue", "Liberation Sans", "DejaVu Sans", sans-serif;
   color: #000; -webkit-font-smoothing: none;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
 }
-.mkz { text-align: center; font-size: 10px; line-height: 1.2; margin-bottom: 4px }
-.nom { text-align: center; font-size: 13px; font-weight: 700; letter-spacing: .02em }
-.raqam { text-align: center; font-size: 14px; font-weight: 700; margin: 5px 0 2px }
-.bosh { text-align: center; font-weight: 700; margin: 7px 0 3px }
-.fish { text-align: center; font-size: 14px; font-weight: 700; line-height: 1.25;
-        text-transform: uppercase; margin-bottom: 2px }
-.mk { text-align: center; font-size: 11px }
-.ch { border-top: 1px dashed #000; margin: 6px 0 }
-.chq { border-top: 1px solid #000; margin: 6px 0 }
-.q { display: flex; justify-content: space-between; gap: 6px; margin: 2px 0 }
-.q span:last-child { text-align: right; white-space: nowrap }
-.q.jami { font-weight: 700; font-size: 13px }
-.oyoq { text-align: center; font-size: 10px; margin-top: 8px; line-height: 1.4 }
+.mkz { text-align: center; font-size: 12px; line-height: 1.25; margin-bottom: 3px }
+.nom { text-align: center; font-size: 17px; line-height: 1.2 }
+.raqam { text-align: center; font-size: 18px; margin: 6px 0 2px }
+.bosh { text-align: center; font-size: 16px; margin: 9px 0 4px }
+.fish { text-align: center; font-size: 20px; line-height: 1.2;
+        text-transform: uppercase; margin-bottom: 3px }
+.mk { text-align: center; font-size: 14px }
+.ch { border-top: 2px solid #000; margin: 7px 0 }
+.chq { border-top: 2px solid #000; margin: 7px 0 }
+.q { display: flex; justify-content: space-between; gap: 5px; margin: 3px 0;
+     font-size: 15px }
+.q span:first-child { flex: 0 1 auto }
+.q span:last-child { flex: 1 1 auto; text-align: right; white-space: nowrap }
+/* uzun matn (xodim ismi) chekdan chiqib ketmasin — koʻchsin */
+.q.matn span:last-child { white-space: normal; overflow-wrap: anywhere }
+.q.jami { font-size: 16px }
+.oyoq { text-align: center; font-size: 13px; margin-top: 9px; line-height: 1.35 }
 /* Pul qaytarish tilxati — chekdan darrov ajralib tursin */
-.turi { text-align: center; font-size: 12px; font-weight: 700; letter-spacing: .04em;
-        border: 1px solid #000; padding: 2px 0; margin: 4px 0 2px }
-.imzo { margin-top: 10px; font-size: 11px }
-.imzo .chiziq { border-bottom: 1px solid #000; height: 16px; margin-top: 12px }
-.imzo .izoh { text-align: center; font-size: 9px; margin-top: 2px }
+.turi { text-align: center; font-size: 16px; letter-spacing: .04em;
+        border: 2px solid #000; padding: 3px 0; margin: 5px 0 2px }
+.imzo { margin-top: 11px; font-size: 14px }
+.imzo .chiziq { border-bottom: 2px solid #000; height: 18px; margin-top: 14px }
+.imzo .izoh { text-align: center; font-size: 12px; margin-top: 3px }
 `
 
 export function chekHtml(c) {
@@ -65,7 +78,7 @@ ${qaytarish ? '<div class="turi">PUL QAYTARILDI</div>' : ''}
 <div class="bosh">Bemor</div>
 <div class="fish">${esc(c.fish || '')}</div>
 ${yosh ? `<div class="mk">${esc(yosh)}${rol ? ' · ' + esc(rol) : ''}</div>` : ''}
-${c.telefon ? `<div class="mk">☎ ${esc(c.telefon)}</div>` : ''}
+${c.telefon ? `<div class="mk">Tel: ${esc(c.telefon)}</div>` : ''}
 
 <div class="ch"></div>
 <div class="bosh">Palata</div>
@@ -86,7 +99,7 @@ ${q('Qarzdorlik', pul2(c.qolgan_qarz), 'jami')}
 
 <div class="chq"></div>
 ${q('Kelgan', kun(c.kirish_sana))}
-${q('Xodim', c.kassir || '—')}
+${q('Xodim', c.kassir || '—', 'matn')}
 ${q('Sana', kunVaqt(c.tolov_vaqti))}
 
 ${qaytarish ? `
