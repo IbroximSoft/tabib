@@ -222,7 +222,7 @@ export default function Bemorlar() {
       ) : (
         <div className="card">
           <div className="scroll-x">
-            <table className="clickable">
+            <table className="clickable mobil-karta">
               <thead>
                 <tr>
                   <th>Bemor</th>
@@ -237,7 +237,7 @@ export default function Bemorlar() {
               <tbody>
                 {royxat.map((y) => (
                   <tr key={y.yotqizish_id} onClick={() => setModal({ tur: 'karta', yozuv: y })}>
-                    <td>
+                    <td className="bosh">
                       <div className="nm">{y.fish}</div>
                       <div className="sb">
                         <span className={`dot ${y.jins}`} />
@@ -254,20 +254,20 @@ export default function Bemorlar() {
                         </div>
                       )}
                     </td>
-                    <td className="num">
+                    <td className="num" data-l="Xona / koyka">
                       {y.xonada ? `${y.xona} / ${y.koyka}` : <span className="muted">xonasiz</span>}
                     </td>
-                    <td className="num">{sana(y.kirish_sana)}</td>
-                    <td className="num">{sana(y.reja_chiqish)}</td>
-                    <td className="r num">{y.yotgan_kun}</td>
+                    <td className="num" data-l="Kirgan">{sana(y.kirish_sana)}</td>
+                    <td className="num" data-l="Reja boʻyicha">{sana(y.reja_chiqish)}</td>
+                    <td className="r num" data-l="Yotgan kun">{y.yotgan_kun}</td>
                     {can('pul') && (
-                      <td className="r num">
+                      <td className="r num" data-l="Qarz">
                         {Number(y.qarz) > 0
                           ? <b style={{ color: 'var(--full)' }}>{son(y.qarz)}</b>
                           : <span className="muted">—</span>}
                       </td>
                     )}
-                    <td><HolatPill y={y} /></td>
+                    <td data-l="Holat"><HolatPill y={y} /></td>
                   </tr>
                 ))}
               </tbody>

@@ -605,3 +605,59 @@ tfoot td{font-weight:600;background:var(--surface-2);border-bottom:none;
 /* Faqat mobilda ko'rinadigan matn (hide-m ning teskarisi) */
 .faqat-m{display:none}
 @media(max-width:900px){ .faqat-m{display:inline} }
+
+/* ============================================================
+   TELEFONDA JADVAL -> KARTALAR
+
+   Tor ekranda 6-8 ustunli jadval siqilib qoladi: raqamlar
+   "1 000 / 000" bo'lib ustun-ustun bo'linadi, oxirgi ustun
+   esa chetdan chiqib ketadi. Shu sinf qo'yilgan jadval
+   telefonda kartaga aylanadi: har bir qator alohida blok,
+   har bir katak "nomi — qiymati" ko'rinishida (nomi td dagi
+   data-l atributidan olinadi).
+   ============================================================ */
+/* Jadval kataklarida raqam ustun-ustun bo'linib ketmasin.
+   KPI kartalariga tegilmaydi — u yerda o'z o'lchami bor. */
+td .num, td.num, tfoot td{white-space:nowrap}
+
+/* Telefonda pul raqami kartaga sig'sin */
+@media (max-width:420px){
+  .kpi{padding:12px 12px}
+  .kpi .v{font-size:23px}
+  .kpi .v.money{font-size:15.5px;letter-spacing:-.02em}
+  .kpi .l{font-size:12px}
+}
+
+@media (max-width:640px){
+  .jadval-o table.mobil-karta,
+  .scroll-x table.mobil-karta{min-width:0}
+
+  table.mobil-karta thead{display:none}
+
+  table.mobil-karta tbody tr{display:block;padding:11px 13px;
+    border-bottom:1px solid var(--line-2)}
+  table.mobil-karta tbody tr:last-child{border-bottom:none}
+
+  table.mobil-karta tbody td{display:flex;justify-content:space-between;
+    align-items:baseline;gap:12px;padding:3px 0;border:none;
+    font-size:13.5px;text-align:left}
+  table.mobil-karta tbody td::before{content:attr(data-l);color:var(--ink-3);
+    font-size:12px;flex:none}
+
+  /* birinchi katak — karta sarlavhasi: yorliqsiz, kattaroq */
+  table.mobil-karta tbody td.bosh{display:block;margin-bottom:5px;font-size:14.5px}
+  table.mobil-karta tbody td.bosh::before{display:none}
+  table.mobil-karta tbody td.bosh .nm{font-weight:600}
+
+  /* tugmali katak — butun kenglikka */
+  table.mobil-karta tbody td.amal{display:block;margin-top:7px}
+  table.mobil-karta tbody td.amal::before{display:none}
+  table.mobil-karta tbody td.amal .btn{width:100%}
+
+  table.mobil-karta tbody td:empty{display:none}
+
+  table.mobil-karta tfoot tr{display:block;padding:10px 13px}
+  table.mobil-karta tfoot td{display:flex;justify-content:space-between;
+    gap:12px;padding:2px 0;border:none;background:none}
+  table.mobil-karta tfoot td:empty{display:none}
+}

@@ -136,7 +136,7 @@ function Toliq() {
           <span className="pill full num">{som(u.qarz_jami)}</span>
         </div>
         {qarzdorlar.length ? (
-          <table>
+          <table className="mobil-karta">
             <thead>
               <tr><th>Bemor</th><th>Xona</th><th className="r">Umumiy</th>
                 <th className="r">Toʻlangan</th><th className="r">Qarz</th></tr>
@@ -144,11 +144,13 @@ function Toliq() {
             <tbody>
               {qarzdorlar.map((q) => (
                 <tr key={q.yotqizish_id}>
-                  <td style={{ fontWeight: 500 }}>{q.fish}</td>
-                  <td className="num">{q.xona}</td>
-                  <td className="r num">{son(q.umumiy)}</td>
-                  <td className="r num" style={{ color: 'var(--free)' }}>{son(q.tolangan)}</td>
-                  <td className="r num" style={{ color: 'var(--full)', fontWeight: 600 }}>
+                  <td className="bosh" style={{ fontWeight: 500 }}>{q.fish}</td>
+                  <td className="num" data-l="Xona">{q.xona}</td>
+                  <td className="r num" data-l="Umumiy">{son(q.umumiy)}</td>
+                  <td className="r num" data-l="Toʻlangan"
+                    style={{ color: 'var(--free)' }}>{son(q.tolangan)}</td>
+                  <td className="r num" data-l="Qarz"
+                    style={{ color: 'var(--full)', fontWeight: 600 }}>
                     {son(q.qarz)}</td>
                 </tr>
               ))}
@@ -301,7 +303,7 @@ function Kassa() {
           </div>
           {qarzdorlar.length ? (
             <div className="scroll-x">
-              <table>
+              <table className="mobil-karta">
                 <thead>
                   <tr><th>Bemor</th><th>Xona</th><th className="r">Umumiy</th>
                     <th className="r">Toʻlangan</th><th className="r">Qarz</th><th></th></tr>
@@ -309,16 +311,18 @@ function Kassa() {
                 <tbody>
                   {qarzdorlar.map((q) => (
                     <tr key={q.yotqizish_id}>
-                      <td>
+                      <td className="bosh">
                         <div className="nm">{q.fish}</div>
                         <div className="sb num muted">{q.telefon}</div>
                       </td>
-                      <td className="num">{q.xona}</td>
-                      <td className="r num">{son(q.umumiy)}</td>
-                      <td className="r num" style={{ color: 'var(--free)' }}>{son(q.tolangan)}</td>
-                      <td className="r num" style={{ color: 'var(--full)', fontWeight: 600 }}>
+                      <td className="num" data-l="Xona">{q.xona}</td>
+                      <td className="r num" data-l="Umumiy">{son(q.umumiy)}</td>
+                      <td className="r num" data-l="Toʻlangan"
+                        style={{ color: 'var(--free)' }}>{son(q.tolangan)}</td>
+                      <td className="r num" data-l="Qarz"
+                        style={{ color: 'var(--full)', fontWeight: 600 }}>
                         {son(q.qarz)}</td>
-                      <td className="r">
+                      <td className="r amal">
                         <button className="btn sm" onClick={() =>
                           nav('/bemorlar', { state: { qidir: q.telefon || q.fish } })}>
                           Toʻlov
@@ -366,7 +370,7 @@ function Kassa() {
           <div className="card-b muted">{davrNomi} boʻyicha toʻlov yoʻq.</div>
         ) : (
           <div className="scroll-x" style={{ marginTop: 12 }}>
-            <table>
+            <table className="mobil-karta">
               <thead>
                 <tr><th>Kim toʻladi</th><th>Xona</th><th className="r">Summa</th>
                   <th>Usuli</th><th>Qabul qilgan</th><th>Vaqt</th><th></th></tr>
@@ -377,20 +381,20 @@ function Kassa() {
                   const qayt = Number(t.summa) < 0
                   return (
                   <tr key={t.tolov_id}>
-                    <td>
+                    <td className="bosh">
                       <div className="nm">{t.fish}</div>
                       <div className="sb num muted">{t.chek_raqam}</div>
                       {qayt && <span className="pill partial">Qaytarildi</span>}
                     </td>
-                    <td className="num">{t.xona || '—'}</td>
-                    <td className="r num"
+                    <td className="num" data-l="Xona">{t.xona || '—'}</td>
+                    <td className="r num" data-l="Summa"
                       style={{ fontWeight: 600, color: qayt ? 'var(--partial)' : undefined }}>
                       {qayt ? `− ${son(Math.abs(Number(t.summa)))}` : son(t.summa)}
                     </td>
-                    <td>{USUL_NOM[t.usuli] || t.usuli}</td>
-                    <td className="muted">{t.kassir}</td>
-                    <td className="muted num">{kunVaqt(t.vaqt)}</td>
-                    <td className="r">
+                    <td data-l="Usuli">{USUL_NOM[t.usuli] || t.usuli}</td>
+                    <td className="muted" data-l="Qabul qilgan">{t.kassir}</td>
+                    <td className="muted num" data-l="Vaqt">{kunVaqt(t.vaqt)}</td>
+                    <td className="r amal">
                       <button className="btn sm" onClick={() => chekChiqar(t.tolov_id)}>
                         {qayt ? 'Tilxat' : 'Chek'}
                       </button>

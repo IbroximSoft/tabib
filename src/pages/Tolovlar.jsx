@@ -168,7 +168,7 @@ export default function Tolovlar() {
           ) : (
             <div className="card">
               <div className="jadval-o">
-                <table>
+                <table className="mobil-karta">
                   <thead>
                     <tr>
                       <th>Chek</th><th>Bemor</th><th>Xona</th>
@@ -181,32 +181,32 @@ export default function Tolovlar() {
                       const qayt = Number(r.summa) < 0
                       return (
                       <tr key={r.tolov_id}>
-                        <td>
+                        <td className="bosh">
                           <div className="nm num">{r.chek_raqam}</div>
                           <div className="sb num">{kunVaqt(r.vaqt)}</div>
                           {qayt && <span className="pill partial">Qaytarildi</span>}
                         </td>
-                        <td>
+                        <td data-l="Bemor">
                           <button className="matn" onClick={() =>
                             nav('/bemorlar', { state: { qidir: r.telefon } })}>
                             {r.fish}
                           </button>
                           <div className="sb num">{r.telefon}</div>
                         </td>
-                        <td>{r.xona}</td>
-                        <td>{USUL[r.usuli] || r.usuli}</td>
-                        <td className="muted">{r.kassir}</td>
-                        <td className="r num">
+                        <td data-l="Xona">{r.xona}</td>
+                        <td data-l="Usuli">{USUL[r.usuli] || r.usuli}</td>
+                        <td className="muted" data-l="Kassir">{r.kassir}</td>
+                        <td className="r num" data-l="Summa">
                           <b style={qayt ? { color: 'var(--partial)' } : undefined}>
                             {qayt ? `− ${son(Math.abs(Number(r.summa)))}` : son(r.summa)}
                           </b>
                         </td>
-                        <td className="r num">
+                        <td className="r num" data-l="Qolgan qarz">
                           {Number(r.qolgan_qarz) > 0
                             ? <span style={{ color: 'var(--full)' }}>{son(r.qolgan_qarz)}</span>
                             : <span className="muted">0</span>}
                         </td>
-                        <td className="r">
+                        <td className="r amal">
                           <button className="btn sm" onClick={() => chekChiqar(r.tolov_id)}>
                             {qayt ? 'Tilxat' : 'Chek'}
                           </button>
@@ -221,7 +221,8 @@ export default function Tolovlar() {
                         <td colSpan={5} className="muted">
                           Qaytarilgan — {jami.qaytarishSoni} ta
                         </td>
-                        <td className="r num" style={{ color: 'var(--partial)' }}>
+                        <td className="r num" data-l="Qaytarilgan"
+                          style={{ color: 'var(--partial)' }}>
                           − {son(jami.qaytarilgan)}
                         </td>
                         <td colSpan={2}></td>
@@ -232,7 +233,7 @@ export default function Tolovlar() {
                         Jami — {jami.soni} ta toʻlov
                         {jami.qaytarilgan > 0 && ' (qaytarilgani ayirilgan)'}
                       </td>
-                      <td className="r num"><b>{son(jami.sof)}</b></td>
+                      <td className="r num" data-l="Jami summa"><b>{son(jami.sof)}</b></td>
                       <td colSpan={2}></td>
                     </tr>
                   </tfoot>
@@ -259,7 +260,7 @@ export default function Tolovlar() {
               </div>
               <div className="card">
                 <div className="jadval-o">
-                  <table>
+                  <table className="mobil-karta">
                     <thead>
                       <tr>
                         <th>Bemor</th><th>Xona</th>
@@ -270,17 +271,18 @@ export default function Tolovlar() {
                     <tbody>
                       {qarzdorlar.map((r) => (
                         <tr key={r.yotqizish_id}>
-                          <td>
+                          <td className="bosh">
                             <div className="nm">{r.fish}</div>
                             <div className="sb num">{r.telefon}</div>
                           </td>
-                          <td>{r.xona}</td>
-                          <td className="r num">{son(r.umumiy)}</td>
-                          <td className="r num" style={{ color: 'var(--free)' }}>{son(r.tolangan)}</td>
-                          <td className="r num">
+                          <td data-l="Xona">{r.xona}</td>
+                          <td className="r num" data-l="Hisob">{son(r.umumiy)}</td>
+                          <td className="r num" data-l="Toʻlangan"
+                            style={{ color: 'var(--free)' }}>{son(r.tolangan)}</td>
+                          <td className="r num" data-l="Qarz">
                             <b style={{ color: 'var(--full)' }}>{son(r.qarz)}</b>
                           </td>
-                          <td className="r">
+                          <td className="r amal">
                             {can('tolov') && (
                               <button className="btn sm" onClick={() =>
                                 nav('/bemorlar', { state: { qidir: r.telefon } })}>
@@ -294,7 +296,7 @@ export default function Tolovlar() {
                     <tfoot>
                       <tr>
                         <td colSpan={4}>Jami</td>
-                        <td className="r num"><b>{son(qarzJami)}</b></td>
+                        <td className="r num" data-l="Jami qarz"><b>{son(qarzJami)}</b></td>
                         <td></td>
                       </tr>
                     </tfoot>

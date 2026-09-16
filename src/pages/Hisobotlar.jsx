@@ -556,7 +556,7 @@ function Bemorlar({ d }) {
 
       <div className="card">
         <div className="jadval-o">
-          <table>
+          <table className="mobil-karta">
             <thead>
               <tr>
                 <th>Bemor</th><th>Xona</th><th>Kirgan</th><th>Chiqqan</th>
@@ -570,7 +570,7 @@ function Bemorlar({ d }) {
                   Bu filtr boʻyicha yozuv yoʻq.</td></tr>
               ) : royxat.map((r) => (
                 <tr key={r.yotqizish_id}>
-                  <td>
+                  <td className="bosh">
                     <div className="nm">{r.fish}</div>
                     <div className="sb">
                       <span className={`dot ${r.jins}`} />
@@ -578,17 +578,18 @@ function Bemorlar({ d }) {
                       {r.telefon}
                     </div>
                   </td>
-                  <td>{r.xona}</td>
-                  <td className="num">{sana(r.kirish_sana)}</td>
-                  <td className="num">
+                  <td data-l="Xona">{r.xona}</td>
+                  <td className="num" data-l="Kirgan">{sana(r.kirish_sana)}</td>
+                  <td className="num" data-l="Chiqqan">
                     {r.haqiqiy_chiqish
                       ? sana(r.haqiqiy_chiqish)
                       : <span className="muted">{sana(r.reja_chiqish)} (reja)</span>}
                   </td>
-                  <td className="r num">{r.yotgan_kun}</td>
-                  <td className="r num">{son(r.umumiy)}</td>
-                  <td className="r num" style={{ color: 'var(--free)' }}>{son(r.tolangan)}</td>
-                  <td className="r num">
+                  <td className="r num" data-l="Kun">{r.yotgan_kun}</td>
+                  <td className="r num" data-l="Hisob">{son(r.umumiy)}</td>
+                  <td className="r num" data-l="Toʻlangan"
+                    style={{ color: 'var(--free)' }}>{son(r.tolangan)}</td>
+                  <td className="r num" data-l="Qarz">
                     {Number(r.qarz) > 0
                       ? <b style={{ color: 'var(--full)' }}>{son(r.qarz)}</b>
                       : Number(r.ortiqcha) > 0
