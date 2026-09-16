@@ -823,6 +823,9 @@ function BemorKarta({ y, rol, can, ochish, yop, tugadi, yangila }) {
 
   const [qaytarmasdan, setQaytarmasdan] = useState(false)
   const [sabab, setSabab] = useState('')
+  /* Xato yozuvni oʻchirish — faqat adminda */
+  const [ochirOchiq, setOchirOchiq] = useState(false)
+  const [ochirSabab, setOchirSabab] = useState('')
   /* Chiqarish tasdig'i: pul qaytariladigan bo'lsa ochiladi */
   const [chiqarOchiq, setChiqarOchiq] = useState(false)
   const [chusuli, setChusuli] = useState('naqd')
@@ -902,6 +905,21 @@ function BemorKarta({ y, rol, can, ochish, yop, tugadi, yangila }) {
     if (error) return setXato(xatoMatni(error))
     setQaytarmasdan(false)
     tugadi(`${som(data ?? ortiqcha)} xizmat hisobiga oʻtkazildi — hisob yopildi.`)
+  }
+
+  /* XATO YOZUVNI OʻCHIRISH (faqat admin)
+     Toʻlovi boʻlmasa baza yozuvni butunlay oʻchiradi, toʻlov
+     boʻlsa — "bekor" deb belgilaydi. Qaysi yoʻl bilan ketgani
+     javobdagi xabarda aytiladi. */
+  async function ochir() {
+    setXato(''); setBand(true)
+    const { data, error } = await amal.bemorOchir(
+      y.yotqizish_id, ochirSabab.trim() || null)
+    setBand(false)
+    if (error) return setXato(xatoMatni(error))
+    const r = (data || [])[0]
+    setOchirOchiq(false)
+    tugadi(r?.xabar || `${y.fish} oʻchirildi.`)
   }
 
   /* Toʻlov tarixi faqat pulni koʻradiganlarga */
@@ -1214,6 +1232,51 @@ function BemorKarta({ y, rol, can, ochish, yop, tugadi, yangila }) {
                 <span className="sp" />
                 <button className="btn dan sm" onClick={hisobgaOtkaz} disabled={band}>
                   {band ? '…' : 'Hisobni yopish'}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ---------- XATO YOZUVNI OʻCHIRISH (faqat admin) ---------- */}
+      {rol === 'super_admin' && (
+        <div style={{ marginTop: 18 }}>
+          <div className="bolim-bosh"><h4>Xatoni tuzatish</h4></div>
+
+          {!ochirOchiq ? (
+            <>
+              <div className="muted" style={{ maxWidth: '64ch' }}>
+                Bemor xato kiritilgan boʻlsa (ikki marta yozilgan, boshqa odam
+                tanlangan) yozuvni oʻchirib tashlash mumkin.
+              </div>
+              <button className="btn dan sm" style={{ marginTop: 10 }}
+                onClick={() => setOchirOchiq(true)} disabled={band}>
+                Bemorni oʻchirish
+              </button>
+            </>
+          ) : (
+            <div className="tolov-forma">
+              <div className="field">
+                <label htmlFor="osab">Nega oʻchirilyapti?</label>
+                <input id="osab" value={ochirSabab} disabled={band}
+                  onChange={(e) => setOchirSabab(e.target.value)}
+                  placeholder="masalan: ikki marta kiritilgan" />
+                <div className="hint">
+                  Toʻlovi boʻlmasa yozuv butunlay oʻchadi — qarovchi va farzandlari
+                  bilan birga. Toʻlov qabul qilingan boʻlsa <b>oʻchmaydi</b>:
+                  “bekor qilindi” deb belgilanadi, sabab yozuvda qoladi, koyka
+                  boʻshaydi, kassa hisoboti esa oʻzgarmaydi. Bu holda sabab yozish shart.
+                </div>
+              </div>
+              <div className="row" style={{ marginTop: 10 }}>
+                <button className="btn sm" disabled={band}
+                  onClick={() => { setOchirOchiq(false); setOchirSabab('') }}>
+                  Bekor
+                </button>
+                <span className="sp" />
+                <button className="btn dan sm" onClick={ochir} disabled={band}>
+                  {band ? '…' : 'Oʻchirish'}
                 </button>
               </div>
             </div>

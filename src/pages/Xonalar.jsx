@@ -207,6 +207,7 @@ export default function Xonalar() {
                 bemorga={(k) => setModal({ tur: 'bemor', koyka: k })}
                 boshga={boshKoykaga}
                 tamirga={tamirga}
+                tahrir={(xo) => setModal({ tur: 'tahrir', xona: xo })}
               />
             ))}
           </div>
@@ -215,6 +216,11 @@ export default function Xonalar() {
 
       {modal?.tur === 'yangi' && (
         <YangiXona bolimlar={bolimlar} turlar={turlar}
+          yop={() => setModal(null)}
+          tugadi={(m) => { setModal(null); bildir(m); yukla() }} />
+      )}
+      {modal?.tur === 'tahrir' && (
+        <XonaTahrir x={modal.xona} bolimlar={bolimlar}
           yop={() => setModal(null)}
           tugadi={(m) => { setModal(null); bildir(m); yukla() }} />
       )}
@@ -249,7 +255,7 @@ function Kpi({ v, l, rang = 'a' }) {
 /* ============================================================
    XONA KARTASI
    ============================================================ */
-function XonaKart({ x, koykalar, rol, can, bemorga, boshga, tamirga }) {
+function XonaKart({ x, koykalar, rol, can, bemorga, boshga, tamirga, tahrir }) {
   const bosh = Number(x.sigim) - Number(x.band)
   const jinsPill = x.xona_jinsi
     ? <span className={`pill ${x.xona_jinsi === 'erkak' ? 'booked' : 'full'}`}>
@@ -308,6 +314,9 @@ function XonaKart({ x, koykalar, rol, can, bemorga, boshga, tamirga }) {
         <div className="xk-oyoq">
           <span className="muted">{bosh > 0 ? `${bosh} boʻsh joy` : 'boʻsh joy yoʻq'}</span>
           <span className="sp" />
+          {rol === 'super_admin' && (
+            <button className="btn sm" onClick={() => tahrir(x)}>Tahrirlash</button>
+          )}
           {x.tamirlashda ? (
             <button className="btn sm" onClick={() => tamirga(x, false)}>Ishga qaytarish</button>
           ) : (
@@ -450,6 +459,105 @@ function KoykaKarta({ k, can, yop, ochish }) {
 /* ============================================================
    YANGI XONA
    ============================================================ */
+/* ============================================================
+   XONANI TAHRIRLASH (faqat admin)
+
+   Raqami, boʻlimi va koyka soni. Chegaralarni baza qoʻyadi:
+   band xonaning boʻlimi oʻzgarmaydi, yozuvlari bor koyka
+   oʻchmaydi. Bu yerda ular faqat tushuntiriladi.
+   ============================================================ */
+function XonaTahrir({ x, bolimlar, yop, tugadi }) {
+  const [v, setV] = useState({
+    raqam: x.raqam || '',
+    bolim_id: String(x.bolim_id || ''),
+    sigim: String(x.sigim || 1)
+  })
+  const [xato, setXato] = useState('')
+  const [band, setBand] = useState(false)
+  const set = (k, val) => setV((s) => ({ ...s, [k]: val }))
+
+  const bandKoyka = Number(x.band) || 0
+  const sigimOzgardi = Number(v.sigim) !== Number(x.sigim)
+  const bolimOzgardi = String(v.bolim_id) !== String(x.bolim_id)
+
+  async function saqla() {
+    if (!v.raqam.trim()) return setXato('Xona raqamini kiriting.')
+    const soni = Number(v.sigim)
+    if (!(soni >= 1 && soni <= 20)) return setXato('Koykalar soni 1 dan 20 gacha boʻlsin.')
+
+    setBand(true); setXato('')
+    try {
+      const { data: d1, error: e1 } = await amal.xonaTahrir(
+        x.id, v.raqam.trim(), Number(v.bolim_id))
+      if (e1) throw e1
+
+      let xabar = d1 || `${v.raqam}-xona saqlandi.`
+      if (sigimOzgardi) {
+        const { data: d2, error: e2 } = await amal.xonaKoyka(x.id, soni)
+        if (e2) throw e2
+        if (d2) xabar += ` ${d2}`
+      }
+      tugadi(xabar)
+    } catch (err) {
+      setXato(xatoMatni(err))
+      setBand(false)
+    }
+  }
+
+  return (
+    <Modal sarlavha={`${x.raqam}-xona`} yop={yop} kenglik={480}
+      amallar={<>
+        <button className="btn" onClick={yop} disabled={band}>Bekor qilish</button>
+        <button className="btn pri" onClick={saqla} disabled={band}>
+          {band ? 'Saqlanmoqda…' : 'Saqlash'}
+        </button>
+      </>}>
+      {xato && <div className="alert err" style={{ marginBottom: 14 }}><span>▲</span><div>{xato}</div></div>}
+
+      <div className="grid2">
+        <div className="field">
+          <label htmlFor="tr">Xona raqami</label>
+          <input id="tr" value={v.raqam} onChange={(e) => set('raqam', e.target.value)} />
+        </div>
+        <div className="field">
+          <label htmlFor="ts">Koykalar soni</label>
+          <input id="ts" type="number" min="1" max="20" value={v.sigim}
+            onChange={(e) => set('sigim', e.target.value)} />
+          <div className="hint">
+            {bandKoyka > 0
+              ? `Hozir ${bandKoyka} ta koyka band — band yoki yozuvi bor koykani olib tashlab boʻlmaydi.`
+              : 'Koyka qoʻshsangiz oxiriga qoʻshiladi.'}
+          </div>
+        </div>
+
+        <div className="field full">
+          <label htmlFor="tb">Boʻlim</label>
+          <select id="tb" value={v.bolim_id} disabled={bandKoyka > 0}
+            onChange={(e) => set('bolim_id', e.target.value)}>
+            {bolimlar.map((b) => (
+              <option key={b.id} value={b.id}>
+                {b.nomi}{b.jins !== 'aralash' ? ` (${b.jins === 'erkak' ? 'erkaklar' : 'ayollar'})` : ' (aralash)'}
+              </option>
+            ))}
+          </select>
+          <div className="hint">
+            {bandKoyka > 0
+              ? 'Xonada bemor bor — boʻlimni almashtirish uchun avval ularni koʻchiring yoki chiqaring.'
+              : bolimOzgardi
+                ? 'Boʻlim oʻzgarsa, jins qoidasi ham shu boʻlimdan olinadi.'
+                : 'Jins qoidasi boʻlimdan kelib chiqadi.'}
+          </div>
+        </div>
+      </div>
+
+      <div className="muted" style={{ marginTop: 10 }}>
+        Xona turi va narxi bu yerda emas — ular <b>Sozlamalar → Narxlar</b> boʻlimida,
+        xona turiga bogʻlangan holda oʻzgartiriladi.
+      </div>
+    </Modal>
+  )
+}
+
 function YangiXona({ bolimlar, turlar, yop, tugadi }) {
   const [v, setV] = useState({
     bolim_id: bolimlar[0]?.id || '', raqam: '',

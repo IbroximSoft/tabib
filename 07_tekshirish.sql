@@ -76,7 +76,10 @@ WITH f(tartib, fayl, bor) AS (
     (25, '25_yashirin_admin.sql',
          EXISTS (SELECT 1 FROM information_schema.columns
                   WHERE table_schema='public' AND table_name='xodimlar'
-                    AND column_name='yashirin'))
+                    AND column_name='yashirin')),
+    (26, '26_tahrir_ochirish.sql',
+         EXISTS (SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
+                  WHERE n.nspname='public' AND p.proname='bemor_ochir'))
 )
 SELECT
   fayl AS "fayl",
@@ -314,6 +317,14 @@ WITH t AS (
                  WHERE c.relname='xodimlar' AND p.polname='korish'
                    AND pg_get_expr(p.polqual, p.polrelid) LIKE '%men_yashirinmi%'),
     'yashirin ustuni, himoya triggeri va RLS siyosati o''rnatilgan bo''lsin'
+
+  UNION ALL
+  -- 23. Bemorni o'chirish va xonani tahrirlash (26)
+  SELECT 23, 'Bemor o''chirish / xona tahriri',
+    (SELECT count(*) FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
+      WHERE n.nspname='public'
+        AND p.proname IN ('bemor_ochir','xona_tahrir','xona_koyka')) = 3,
+    'bemor_ochir(), xona_tahrir() va xona_koyka() bo''lsin'
 )
 SELECT n AS "№",
        CASE WHEN ok THEN 'OK' ELSE 'XATO' END AS "natija",

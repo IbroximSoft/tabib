@@ -57,6 +57,12 @@ export function xatoMatni(e) {
     if (/tolov_qaytar|qaytariladi|bemor_chiqar_qaytarib|ortiqcha_hisobga|bemor_chiqar_ortiqcha_bilan/.test(m))
       return 'Pul qaytarish funksiyasi bazada hali yoʻq. Supabase → SQL Editor da '
            + '24_qaytarish.sql faylini ishga tushiring.'
+    if (/xodim_yashir|yashirin_bormi/.test(m))
+      return 'Bu imkoniyat bazada hali yoʻq. Supabase → SQL Editor da '
+           + '25_yashirin_admin.sql faylini ishga tushiring.'
+    if (/bemor_ochir|xona_tahrir|xona_koyka/.test(m))
+      return 'Oʻchirish va tahrirlash funksiyalari bazada hali yoʻq. Supabase → SQL '
+           + 'Editor da 26_tahrir_ochirish.sql faylini ishga tushiring.'
     return 'Bu amal bazada hali oʻrnatilmagan. SQL fayllarini tartib bilan ishga '
          + 'tushiring (07_tekshirish.sql qaysi fayl kerakligini koʻrsatadi).'
   }
@@ -368,6 +374,28 @@ export const amal = {
      SECURITY DEFINER funksiya ishlatiladi. */
   xodimParol: (id, parol) =>
     supabase.rpc('xodim_parol', { p_id: id, p_parol: parol }),
+
+  /* ---- 26_tahrir_ochirish.sql ----
+     Bemorni oʻchirish. Toʻlovi boʻlmasa yozuv butunlay ketadi;
+     toʻlov qabul qilingan boʻlsa oʻchmaydi — "bekor" deb
+     belgilanadi va sabab yoziladi (kassa hisoboti buzilmasin).
+     Qaytadi: { amal: 'ochirildi' | 'bekor', xabar }. */
+  bemorOchir: (yotqizishId, sabab = null) =>
+    supabase.rpc('bemor_ochir', {
+      p_yotqizish: yotqizishId,
+      ...(sabab ? { p_sabab: sabab } : {})
+    }),
+
+  /* Xona raqami va boʻlimi. Bemor yotgan xonaning boʻlimi
+     oʻzgarmaydi — buni baza tekshiradi. */
+  xonaTahrir: (xonaId, raqam, bolimId) =>
+    supabase.rpc('xona_tahrir', {
+      p_xona: xonaId, p_raqam: raqam ?? null, p_bolim_id: bolimId ?? null
+    }),
+
+  /* Koyka soni. Yozuvlari bor koyka oʻchmaydi. */
+  xonaKoyka: (xonaId, soni) =>
+    supabase.rpc('xona_koyka', { p_xona: xonaId, p_soni: soni }),
 
   /* ---- 25_yashirin_admin.sql — roʻyxatda koʻrinmaydigan hisob ----
      Tizim egasining hisobi mijoz roʻyxatida turmasin. Bazada
