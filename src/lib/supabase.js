@@ -104,6 +104,7 @@ export const db = {
   koykaHolati: () => supabase.from('v_koykalar').select('*'),
 
   bolimlar: () => supabase.from('bolimlar').select('*').order('tartib'),
+  bolimNarxlari: () => supabase.from('bolim_narxlari').select('*'),
 
   koykalar: () =>
     supabase.from('koykalar').select('id, raqam, xona_id, xonalar(raqam, bolim_id, tamirlashda)'),
@@ -341,6 +342,14 @@ export const amal = {
   qarovchiniBemorga: (yotqizishId) =>
     supabase.rpc('qarovchini_bemorga', { p_yotqizish: yotqizishId }),
 
+  /* Bemor -> Qarovchi, teskarisi (28_dam_olish.sql) */
+  bemorniQarovchiga: (yotqizishId) =>
+    supabase.rpc('bemorni_qarovchiga', { p_yotqizish: yotqizishId }),
+
+  /* Davolanish <-> Dam olish holatini almashtirish (28_dam_olish.sql) */
+  holatOzgartir: (yotqizishId, yangiHolat) =>
+    supabase.rpc('holat_ozgartir', { p_yotqizish: yotqizishId, p_yangi_holat: yangiHolat }),
+
   /* Narxlar — super_admin va buxgalter (09_narx_va_telefon.sql).
      Har bir o'zgarish narx_tarixi ga yoziladi. */
   tarifOzgartir: (kalit, qiymat, izoh = null) =>
@@ -351,6 +360,18 @@ export const amal = {
   /* Xona narxi turga bog'langan (11_xona_turlari.sql) */
   xonaTuriNarx: (turi, narx) =>
     supabase.rpc('xona_turi_narx', { p_turi: turi, p_narx: narx }),
+
+  /* Dam olish narxi (kunlik), turga bog'langan (28_dam_olish.sql) */
+  xonaTuriDamNarx: (turi, narx) =>
+    supabase.rpc('xona_turi_dam_narx', { p_turi: turi, p_narx: narx }),
+
+  /* Bo'lim narxlari — bemor narxi bo'limga qarab (30_bolim_narxlari.sql) */
+  bolimQosh: (nomi, jins) =>
+    supabase.rpc('bolim_qosh', { p_nomi: nomi, p_jins: jins }),
+  bolimTahrir: (bolimId, nomi, jins) =>
+    supabase.rpc('bolim_tahrir', { p_bolim_id: bolimId, p_nomi: nomi, p_jins: jins }),
+  bolimNarxOzgartir: (bolimId, kalit, narx) =>
+    supabase.rpc('bolim_narx_ozgartir', { p_bolim_id: bolimId, p_kalit: kalit, p_narx: narx }),
 
   /* Xonalar ekrani (12_xonalar_korinishi.sql) */
   xonaQosh: (bolimId, raqam, turi, sigim) =>

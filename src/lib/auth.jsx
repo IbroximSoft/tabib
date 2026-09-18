@@ -8,7 +8,7 @@ import { supabase, sozlanmagan, loginEmail } from './supabase'
     Registratorda yo'q: uning ishi ro'yxat va joylashtirish,
     pulga aralashmaydi. */
 export const HUQUQLAR = {
-  super_admin:   ['royxat', 'joylash', 'uzaytir', 'chiqar', 'tolov', 'bron', 'sozlama', 'pul'],
+  super_admin:   ['royxat', 'joylash', 'uzaytir', 'chiqar', 'tolov', 'bron', 'sozlama', 'pul', 'dam_olish'],
   /* Registrator — qabul va joylashtirish. Pul ham, chiqarish ham
      unda emas: bemorni chiqarishda qarz tekshiriladi, bu esa
      kassaning ishi. */
@@ -16,7 +16,7 @@ export const HUQUQLAR = {
   /* Buxgalter — kassa. Qarzi yopilgan bemorni chiqara ham oladi
      (pulni u qabul qiladi, demak chiqarishni ham u yopadi).
      Narxlar esa faqat super adminda. */
-  buxgalter:     ['tolov', 'chiqar', 'pul'],
+  buxgalter:     ['tolov', 'chiqar', 'pul', 'dam_olish'],
   /* Kuzatuvchi — hammasini ko'radi, hech narsaga tegmaydi */
   viewer:        ['pul']
 }

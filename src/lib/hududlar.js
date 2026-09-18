@@ -13,14 +13,14 @@ export const VILOYATLAR = [
     nomi: 'Qoraqalpogʻiston Respublikasi',
     tumanlar: [
       'Amudaryo', 'Beruniy', 'Bozatov', 'Shimbay', 'Ellikqala', 'Kegeyli',
-      'Moynoq', 'Nukus tumani', 'Qanlikoʻl', 'Qoʻngʻirot', 'Qoraoʻzak',
+      'Moynoq', 'Nukus tumani', 'Nukus shahri', 'Qanlikoʻl', 'Qoʻngʻirot', 'Qoraoʻzak',
       'Shumanay', 'Taqiyatosh', 'Taxtakoʻpir', 'Toʻrtkoʻl', 'Xoʻjayli'
     ]
   },
   {
     nomi: 'Andijon viloyati',
     tumanlar: [
-      'Andijon tumani', 'Asaka', 'Baliqchi', 'Boʻston', 'Buloqboshi',
+      'Andijon tumani', 'Andijon shahri', 'Asaka', 'Baliqchi', 'Boʻston', 'Buloqboshi',
       'Izboskan', 'Jalaquduq', 'Xoʻjaobod', 'Qoʻrgʻontepa', 'Marhamat',
       'Oltinkoʻl', 'Paxtaobod', 'Shahrixon', 'Ulugʻnor'
     ]
@@ -28,7 +28,7 @@ export const VILOYATLAR = [
   {
     nomi: 'Buxoro viloyati',
     tumanlar: [
-      'Olot', 'Buxoro tumani', 'Gʻijduvon', 'Jondor', 'Kogon', 'Qorakoʻl',
+      'Olot', 'Buxoro tumani', 'Buxoro shahri', 'Gʻijduvon', 'Jondor', 'Kogon', 'Qorakoʻl',
       'Qorovulbozor', 'Peshku', 'Romitan', 'Shofirkon', 'Vobkent'
     ]
   },
@@ -36,7 +36,7 @@ export const VILOYATLAR = [
     nomi: 'Fargʻona viloyati',
     tumanlar: [
       'Oltiariq', 'Bagʻdod', 'Beshariq', 'Buvayda', 'Dangʻara',
-      'Fargʻona tumani', 'Furqat', 'Qoʻshtepa', 'Quva', 'Rishton',
+      'Fargʻona tumani', 'Fargʻona shahri', 'Furqat', 'Qoʻshtepa', 'Quva', 'Rishton',
       'Soʻx', 'Toshloq', 'Uchkoʻprik', 'Oʻzbekiston', 'Yozyovon'
     ]
   },
@@ -45,20 +45,20 @@ export const VILOYATLAR = [
     tumanlar: [
       'Arnasoy', 'Baxmal', 'Doʻstlik', 'Forish', 'Gʻallaorol',
       'Sharof Rashidov', 'Mirzachoʻl', 'Paxtakor', 'Yangiobod', 'Zomin',
-      'Zafarobod', 'Zarbdor'
+      'Zafarobod', 'Zarbdor', 'Jizzax shahri'
     ]
   },
   {
     nomi: 'Xorazm viloyati',
     tumanlar: [
-      'Bogʻot', 'Gurlan', 'Qoʻshkoʻpir', 'Urganch tumani', 'Hazorasp',
+      'Bogʻot', 'Gurlan', 'Qoʻshkoʻpir', 'Urganch tumani', 'Urganch shahri', 'Hazorasp',
       'Xonqa', 'Xiva', 'Shovot', 'Yangibozor', 'Yangiariq', 'Tuproqqalʼa'
     ]
   },
   {
     nomi: 'Namangan viloyati',
     tumanlar: [
-      'Chortoq', 'Chust', 'Kosonsoy', 'Mingbuloq', 'Namangan tumani',
+      'Chortoq', 'Chust', 'Kosonsoy', 'Mingbuloq', 'Namangan tumani', 'Namangan shahri',
       'Norin', 'Pop', 'Toʻraqoʻrgʻon', 'Uchqoʻrgʻon', 'Uychi',
       'Yangiqoʻrgʻon', 'Yangi Namangan'
     ]
@@ -67,13 +67,13 @@ export const VILOYATLAR = [
     nomi: 'Navoiy viloyati',
     tumanlar: [
       'Konimex', 'Qiziltepa', 'Xatirchi', 'Navbahor', 'Karmana',
-      'Nurota', 'Tomdi', 'Uchquduq'
+      'Nurota', 'Tomdi', 'Uchquduq', 'Navoiy shahri'
     ]
   },
   {
     nomi: 'Qashqadaryo viloyati',
     tumanlar: [
-      'Chiroqchi', 'Dehqonobod', 'Gʻuzor', 'Qamashi', 'Qarshi tumani',
+      'Chiroqchi', 'Dehqonobod', 'Gʻuzor', 'Qamashi', 'Qarshi tumani', 'Qarshi shahri',
       'Koson', 'Kasbi', 'Kitob', 'Koʻkdala', 'Mirishkor', 'Muborak',
       'Nishon', 'Shahrisabz', 'Yakkabogʻ'
     ]
@@ -83,13 +83,13 @@ export const VILOYATLAR = [
     tumanlar: [
       'Bulungʻur', 'Ishtixon', 'Jomboy', 'Kattaqoʻrgʻon', 'Qoʻshrabot',
       'Narpay', 'Nurobod', 'Oqdaryo', 'Paxtachi', 'Payariq',
-      'Pastdargʻom', 'Samarqand tumani', 'Toyloq', 'Urgut'
+      'Pastdargʻom', 'Samarqand tumani', 'Samarqand shahri', 'Toyloq', 'Urgut'
     ]
   },
   {
     nomi: 'Sirdaryo viloyati',
     tumanlar: [
-      'Oqoltin', 'Boyovut', 'Guliston', 'Xovos', 'Mirzaobod',
+      'Oqoltin', 'Boyovut', 'Guliston shahri', 'Xovos', 'Mirzaobod',
       'Sardoba', 'Sayxunobod', 'Sirdaryo tumani'
     ]
   },
@@ -98,7 +98,7 @@ export const VILOYATLAR = [
     tumanlar: [
       'Angor', 'Bandixon', 'Boysun', 'Denov', 'Jarqoʻrgʻon', 'Qiziriq',
       'Qumqoʻrgʻon', 'Muzrabot', 'Oltinsoy', 'Sariosiyo', 'Sherobod',
-      'Shoʻrchi', 'Termiz tumani', 'Uzun'
+      'Shoʻrchi', 'Termiz tumani', 'Termiz shahri', 'Uzun'
     ]
   },
   {

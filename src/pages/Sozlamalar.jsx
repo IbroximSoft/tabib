@@ -55,10 +55,12 @@ export default function Sozlamalar() {
       <div className="tablar" style={{ margin: 0 }}>
         <button className={'tab' + (tab === 'narx' ? ' on' : '')}
           onClick={() => setTab('narx')}>Narxlar</button>
+        <button className={'tab' + (tab === 'bolim' ? ' on' : '')}
+          onClick={() => setTab('bolim')}>Boʻlimlar</button>
         <button className={'tab' + (tab === 'xodim' ? ' on' : '')}
           onClick={() => setTab('xodim')}>Xodimlar</button>
       </div>
-      {tab === 'narx' ? <Narxlar /> : <Xodimlar />}
+      {tab === 'narx' ? <Narxlar /> : tab === 'bolim' ? <Bolimlar /> : <Xodimlar />}
     </div>
   )
 }
@@ -66,6 +68,7 @@ export default function Sozlamalar() {
 function Narxlar() {
   const { rol } = useAuth()
   const ozgartira = rol === 'super_admin' || rol === 'buxgalter'
+  const damOzgartira = rol === 'super_admin'
 
   const [tariflar, setTariflar] = useState(null)
   const [turlar, setTurlar] = useState([])
@@ -202,6 +205,44 @@ function Narxlar() {
         )}
       </div>
 
+      {/* ---------------- dam olish narxlari ---------------- */}
+      <div className="card">
+        <div className="card-h">
+          <h3>Dam olish narxlari</h3>
+          <span className="sp" />
+          <span className="muted">kuniga</span>
+        </div>
+        <div className="card-b" style={{ paddingBottom: 4 }}>
+          <div className="muted" style={{ maxWidth: '64ch' }}>
+            Bemor davolanishni toʻxtatib, xonada shunchaki <b>dam olsa</b> (ovqat
+            kiradi, davolanish kirmaydi) — shu narx <b>kunlik</b> hisoblanadi, xona
+            turiga qarab. Necha kun dam olsa, shuncha kun uchun toʻlaydi.
+          </div>
+        </div>
+        {turlar.length === 0 ? (
+          <div className="card-b muted">Xona turlari topilmadi.</div>
+        ) : (
+          <div className="narx-royxat">
+            {turlar.map((t) => (
+              <NarxQator
+                key={t.turi}
+                nomi={t.turi}
+                izoh={`${t.xona_soni} xona · ${t.koyka_soni} koyka${t.xonalar ? ' · ' + t.xonalar : ''}`}
+                qiymat={Number(t.dam_olish_narxi)}
+                birlik="soʻm/kun"
+                ozgartira={damOzgartira}
+                saqla={async (yangi) => {
+                  const { error } = await amal.xonaTuriDamNarx(t.turi, yangi)
+                  if (error) return xatoMatni(error)
+                  bildir(`${t.turi} xonalari dam olish narxi ${son(yangi)} qilib saqlandi.`)
+                  yukla()
+                }}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* ---------------- tarix ---------------- */}
       <div className="card">
         <div className="card-h"><h3>Narx oʻzgarishlari</h3></div>
@@ -296,6 +337,200 @@ function NarxQator({ nomi, izoh, qiymat, birlik = 'soʻm', ozgartira, saqla }) {
           )}
         </div>
       )}
+    </div>
+  )
+}
+
+
+/* ============================================================
+   BO'LIMLAR — bo'lim qo'shish/tahrirlash va har bir bo'limning
+   bemor narxlari (30_bolim_narxlari.sql). Qarovchi va farzand
+   narxi bundan mustaqil — "Narxlar" tabidagi umumiy tariflarda,
+   hamma bo'lim uchun bir xil qoladi (mijoz bilan tasdiqlangan).
+   ============================================================ */
+const BOLIM_NARX = [
+  { k: 'kattalar', n: 'Kattalar kursi',       i: '15 yoshdan katta — asosiy narx' },
+  { k: 'yosh_15',  n: 'Bolalar kursi',        i: '15 yoshgacha' },
+  { k: 'yosh_10',  n: 'Bolalar kursi',        i: '10 yoshgacha' },
+  { k: 'yosh_5',   n: 'Bolalar kursi',        i: '5 yoshgacha' },
+  { k: 'chet_el',  n: 'Chet el qoʻshimchasi', i: 'kurs narxiga qoʻshiladi' }
+]
+
+function Bolimlar() {
+  const [bolimlar, setBolimlar] = useState(null)
+  const [narxlar, setNarxlar] = useState([])
+  const [xato, setXato] = useState('')
+  const [ogoh, setOgoh] = useState('')
+  const [xabar, setXabar] = useState('')
+  const [yangi, setYangi] = useState(false)   // "+ Yangi boʻlim" forma ochiqmi
+
+  const bildir = (m) => { setXabar(m); setTimeout(() => setXabar(''), 4000) }
+
+  const yukla = useCallback(async () => {
+    const [b, n] = await Promise.all([db.bolimlar(), db.bolimNarxlari()])
+    if (b.error) { setXato(xatoMatni(b.error)); return }
+    setBolimlar(b.data || [])
+    setNarxlar(n.data || [])
+    setOgoh(n.error
+      ? 'Boʻlim narxlari bazada hali oʻrnatilmagan. SQL Editorʼda 30-faylni ishga tushiring.'
+      : '')
+  }, [])
+
+  useEffect(() => { yukla() }, [yukla])
+
+  if (xato) return <div className="alert err"><span>▲</span><div>{xato}</div></div>
+  if (bolimlar === null) return <Kutish />
+
+  const narxMap = {}
+  narxlar.forEach((n) => { narxMap[`${n.bolim_id}:${n.kalit}`] = Number(n.qiymat) })
+
+  return (
+    <div className="stack">
+      {ogoh && <div className="alert err"><span>▲</span><div>{ogoh}</div></div>}
+
+      <div className="alert info">
+        <span>◇</span>
+        <div>
+          Har bir boʻlim <b>oʻz bemor narxini</b> belgilaydi (yosh toifalari boʻyicha).
+          Qarovchi va farzand narxi esa <b>umumiy</b> — "Narxlar" boʻlimida, hamma
+          boʻlim uchun bir xil qoladi. Xona puli bundan alohida, xona turiga bogʻliq.
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="card-h"><h3>Boʻlimlar</h3></div>
+        <div className="narx-royxat">
+          {bolimlar.map((b) => (
+            <BolimQator key={b.id} b={b} bildir={bildir} yukla={yukla} />
+          ))}
+        </div>
+        <div className="card-b">
+          {yangi ? (
+            <YangiBolim bildir={bildir} yukla={yukla} yop={() => setYangi(false)} />
+          ) : (
+            <button className="btn" onClick={() => setYangi(true)}>+ Yangi boʻlim</button>
+          )}
+        </div>
+      </div>
+
+      {bolimlar.map((b) => (
+        <div className="card" key={b.id}>
+          <div className="card-h"><h3>{b.nomi} — bemor narxlari</h3></div>
+          <div className="narx-royxat">
+            {BOLIM_NARX.map((x) => (
+              <NarxQator key={x.k} nomi={x.n} izoh={x.i}
+                qiymat={narxMap[`${b.id}:${x.k}`] ?? 0}
+                ozgartira
+                saqla={async (yangiQ) => {
+                  const { error } = await amal.bolimNarxOzgartir(b.id, x.k, yangiQ)
+                  if (error) return xatoMatni(error)
+                  bildir(`${b.nomi}: ${x.n} (${x.i}) ${son(yangiQ)} qilib saqlandi.`)
+                  yukla()
+                }} />
+            ))}
+          </div>
+        </div>
+      ))}
+
+      <Xabar matn={xabar} />
+    </div>
+  )
+}
+
+/* ---------------- bitta bo'lim qatori (nomi/jinsi, tahrirlash) ---------------- */
+function BolimQator({ b, bildir, yukla }) {
+  const [tahrir, setTahrir] = useState(false)
+  const [nomi, setNomi] = useState(b.nomi)
+  const [jins, setJins] = useState(b.jins)
+  const [band, setBand] = useState(false)
+  const [xato, setXato] = useState('')
+
+  async function saqla() {
+    if (!nomi.trim()) return setXato('Nomini kiriting.')
+    setBand(true); setXato('')
+    const { error } = await amal.bolimTahrir(b.id, nomi.trim(), jins)
+    setBand(false)
+    if (error) return setXato(xatoMatni(error))
+    bildir(`${nomi.trim()} saqlandi.`)
+    setTahrir(false)
+    yukla()
+  }
+
+  return (
+    <div className="narx-qator">
+      <div className="body">
+        {tahrir ? (
+          <div className="row" style={{ gap: 7, flexWrap: 'wrap' }}>
+            <input value={nomi} onChange={(e) => setNomi(e.target.value)} autoFocus
+              style={{ minWidth: 180 }} />
+            <select value={jins} onChange={(e) => setJins(e.target.value)}>
+              <option value="erkak">Erkaklar</option>
+              <option value="ayol">Ayollar</option>
+              <option value="aralash">Aralash</option>
+            </select>
+          </div>
+        ) : (
+          <>
+            <b>{b.nomi}</b>
+            <div className="muted">
+              {b.jins === 'aralash' ? 'Aralash' : b.jins === 'erkak' ? 'Erkaklar' : 'Ayollar'}
+            </div>
+          </>
+        )}
+        {xato && <div style={{ color: 'var(--full)', fontSize: 12.5, marginTop: 3 }}>{xato}</div>}
+      </div>
+
+      <div className="row" style={{ gap: 7, flexWrap: 'nowrap' }}>
+        {tahrir ? (
+          <>
+            <button className="btn sm"
+              onClick={() => { setTahrir(false); setNomi(b.nomi); setJins(b.jins); setXato('') }}
+              disabled={band}>Bekor</button>
+            <button className="btn pri sm" onClick={saqla} disabled={band}>
+              {band ? '…' : 'Saqlash'}
+            </button>
+          </>
+        ) : (
+          <button className="btn sm" onClick={() => setTahrir(true)}>Tahrirlash</button>
+        )}
+      </div>
+    </div>
+  )
+}
+
+/* ---------------- yangi bo'lim qo'shish forma ---------------- */
+function YangiBolim({ bildir, yukla, yop }) {
+  const [nomi, setNomi] = useState('')
+  const [jins, setJins] = useState('aralash')
+  const [band, setBand] = useState(false)
+  const [xato, setXato] = useState('')
+
+  async function saqla() {
+    if (!nomi.trim()) return setXato('Boʻlim nomini kiriting.')
+    setBand(true); setXato('')
+    const { error } = await amal.bolimQosh(nomi.trim(), jins)
+    setBand(false)
+    if (error) return setXato(xatoMatni(error))
+    bildir(`${nomi.trim()} qoʻshildi.`)
+    yop()
+    yukla()
+  }
+
+  return (
+    <div className="row" style={{ gap: 7, flexWrap: 'wrap' }}>
+      <input placeholder="Boʻlim nomi (masalan: Bolalar boʻlimi)"
+        value={nomi} onChange={(e) => setNomi(e.target.value)} autoFocus
+        style={{ minWidth: 220 }} />
+      <select value={jins} onChange={(e) => setJins(e.target.value)}>
+        <option value="erkak">Erkaklar</option>
+        <option value="ayol">Ayollar</option>
+        <option value="aralash">Aralash</option>
+      </select>
+      <button className="btn sm" onClick={yop} disabled={band}>Bekor</button>
+      <button className="btn pri sm" onClick={saqla} disabled={band}>
+        {band ? '…' : 'Qoʻshish'}
+      </button>
+      {xato && <div style={{ color: 'var(--full)', fontSize: 12.5, width: '100%' }}>{xato}</div>}
     </div>
   )
 }

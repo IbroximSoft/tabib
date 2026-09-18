@@ -82,7 +82,16 @@ WITH f(tartib, fayl, bor) AS (
                   WHERE n.nspname='public' AND p.proname='bemor_ochir')),
     (27, '27_bemor_malumotlari.sql',
          EXISTS (SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
-                  WHERE n.nspname='public' AND p.proname='bemor_malumotlari_ornatildi'))
+                  WHERE n.nspname='public' AND p.proname='bemor_malumotlari_ornatildi')),
+    (28, '28_dam_olish.sql',
+         EXISTS (SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
+                  WHERE n.nspname='public' AND p.proname='dam_olish_ornatildi')),
+    (29, '29_qarovchi_bemor_tuzatish.sql',
+         EXISTS (SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
+                  WHERE n.nspname='public' AND p.proname='qarovchi_bemor_tuzatildi')),
+    (30, '30_bolim_narxlari.sql',
+         EXISTS (SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
+                  WHERE n.nspname='public' AND p.proname='bolim_narxlari_ornatildi'))
 )
 SELECT
   fayl AS "fayl",

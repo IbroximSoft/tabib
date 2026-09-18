@@ -89,11 +89,13 @@ export default function Bemorlar() {
       q: f.q ? tozala(f.q) : undefined
     }
     const [r, a] = await Promise.all([db.yotqizishlar(filtr), db.yotqizishlar({ holat: 'yotmoqda' })])
-    if (r.error) { setXato(xatoMatni(r.error)); setRoyxat([]); return }
+    if (r.error) { setXato(xatoMatni(r.error)); setRoyxat([]); return { d: [], a: [] } }
     let d = r.data || []
     if (f.holat === 'xonasiz') d = d.filter((x) => !x.xonada)
+    const aData = a.data || []
     setRoyxat(d)
-    setFaol(a.data || [])
+    setFaol(aData)
+    return { d, a: aData }
   }, [f])
 
   useEffect(() => { yukla() }, [yukla])
@@ -163,8 +165,21 @@ export default function Bemorlar() {
 
   const yopVaYangila = (m) => { setModal(null); if (m) bildir(m); yukla() }
   /* Modalni yopmasdan yangilash — toʻlov qabul qilinganda kerak:
-     buxgalter chekni koʻrib turib yana chiqara olsin. */
-  const yangila = (m) => { if (m) bildir(m); yukla() }
+     buxgalter chekni koʻrib turib yana chiqara olsin.
+     MUHIM: faqat fon roʻyxatini emas, OCHIQ TURGAN modalning "y"
+     obyektini ham yangilaymiz — aks holda toʻlov qabul qilingandan
+     keyin ham kartada eski qarz koʻrinib, "Chiqarish" yopiq boʻlib
+     qolaverardi (modal yopib-qayta ochilgandagina toʻgʻrilanardi). */
+  const yangila = async (m) => {
+    if (m) bildir(m)
+    const { d, a } = await yukla()
+    setModal((cur) => {
+      if (!cur || !cur.yozuv) return cur
+      const yangi = a.find((x) => x.yotqizish_id === cur.yozuv.yotqizish_id)
+        || d.find((x) => x.yotqizish_id === cur.yozuv.yotqizish_id)
+      return yangi ? { ...cur, yozuv: yangi } : cur
+    })
+  }
 
   if (xato) return <div className="alert err"><span>▲</span><div>{xato}</div></div>
 
@@ -306,6 +321,12 @@ export default function Bemorlar() {
       {modal?.tur === 'uzaytir' && (
         <Uzaytirish
           y={modal.yozuv} kursKun={ref.kursKun}
+          yop={() => setModal({ tur: 'karta', yozuv: modal.yozuv })} tugadi={yopVaYangila}
+        />
+      )}
+      {modal?.tur === 'malumotTahrir' && (
+        <MalumotTahrir
+          y={modal.yozuv}
           yop={() => setModal({ tur: 'karta', yozuv: modal.yozuv })} tugadi={yopVaYangila}
         />
       )}
@@ -881,6 +902,8 @@ function BemorKarta({ y, rol, can, ochish, yop, tugadi, yangila }) {
 
   const [hamroh, setHamroh] = useState([])
   const [aylantir, setAylantir] = useState(false)
+  const [qarovchigaAylantir, setQarovchigaAylantir] = useState(false)
+  const [damBand, setDamBand] = useState(false)
   const [tab, setTab] = useState('malumot')
   /* karta qaysi varagʻi koʻrsatilyapti/chiqarilyapti: 'tash' yoki 'ich' */
   const [tomon, setTomon] = useState('tash')
@@ -931,9 +954,39 @@ function BemorKarta({ y, rol, can, ochish, yop, tugadi, yangila }) {
     setBand(false)
     if (error) return setXato(xatoMatni(error))
     const r = (data || [])[0]
-    tugadi(r && can('pul')
+    /* Endi bu "bemor" — kartasi uchun otasining ismi, tugʻilgan
+       sanasi, manzili kerak boʻladi. Xabar bilan birga shu forma
+       darhol ochiladi, unutilib qolmasin. */
+    if (yangila) yangila(r && can('pul')
       ? `${y.fish} bemorga aylantirildi. ${r.qarovchi_kuni} kun qarovchi (${som(r.qarovchi_puli)}) + yangi kurs (${som(r.bemor_puli)}) = ${som(r.yangi_summa)}.`
       : `${y.fish} bemorga aylantirildi.`)
+    ochish('malumotTahrir')
+  }
+
+  async function bemordanQarovchiga() {
+    setXato(''); setBand(true)
+    const { data, error } = await amal.bemorniQarovchiga(y.yotqizish_id)
+    setBand(false)
+    if (error) return setXato(xatoMatni(error))
+    const r = (data || [])[0]
+    setQarovchigaAylantir(false)
+    tugadi(r
+      ? `${y.fish} qarovchiga aylantirildi. ${r.bemor_kuni} kun davolanish (${som(r.bemor_puli)}) hisoblandi.`
+      : `${y.fish} qarovchiga aylantirildi.`)
+  }
+
+  /* DAVOLANISH <-> DAM OLISH — joriy bosqich muzlaydi (qarz bo'lsa
+     xatolik chiqadi, avval to'lov qabul qilish kerak), yangi bosqich
+     bugundan boshlanadi (28_dam_olish.sql). */
+  async function holatniOzgartir(yangiHolat) {
+    setXato(''); setDamBand(true)
+    const { data, error } = await amal.holatOzgartir(y.yotqizish_id, yangiHolat)
+    setDamBand(false)
+    if (error) return setXato(xatoMatni(error))
+    const r = (data || [])[0]
+    tugadi(r
+      ? `${y.fish}: ${r.yakunlangan_kun} kunlik oldingi bosqich ${som(r.yakunlangan_summa)} qilib hisoblandi. Endi: ${yangiHolat === 'dam_olish' ? 'dam olmoqda' : 'davolanmoqda'}.`
+      : `${y.fish} holati oʻzgartirildi.`)
   }
 
   async function chiqar() {
@@ -1070,7 +1123,12 @@ function BemorKarta({ y, rol, can, ochish, yop, tugadi, yangila }) {
             </div>
           )}
         </div>
-        <HolatPill y={y} />
+        <div className="row" style={{ gap: 6, flexWrap: 'nowrap' }}>
+          {faol && y.roli === 'bemor' && y.holat_turi === 'dam_olish' && (
+            <span className="pill partial">Dam olmoqda</span>
+          )}
+          <HolatPill y={y} />
+        </div>
       </div>
 
       <div className="tablar">
@@ -1109,6 +1167,13 @@ function BemorKarta({ y, rol, can, ochish, yop, tugadi, yangila }) {
         <dt>Tashxis</dt>
         <dd><Tashxis y={y} can={can} yangila={yangila} /></dd>
       </dl>
+
+      {y.roli === 'bemor' && can('royxat') && (
+        <button className="btn sm" style={{ marginBottom: 10 }}
+          onClick={() => ochish('malumotTahrir')}>
+          Otasining ismi, manzil, tugʻilgan sana — tahrirlash
+        </button>
+      )}
 
       {can('pul') && (
         <div className="pul pul4">
@@ -1171,6 +1236,48 @@ function BemorKarta({ y, rol, can, ochish, yop, tugadi, yangila }) {
         ) : (
           <button className="btn block" style={{ marginTop: 14 }} onClick={() => setAylantir(true)}>
             Bemorga aylantirish
+          </button>
+        )
+      )}
+
+      {/* DAVOLANISH <-> DAM OLISH (28_dam_olish.sql). Faqat asosiy
+          bemorga, xonada yotganida. Qarz bo'lsa baza o'zi rad qiladi —
+          xato xabarida "avval to'lovni qabul qiling" deb chiqadi. */}
+      {faol && y.roli === 'bemor' && y.xonada && can('dam_olish') && (
+        <div className="alert info" style={{ marginTop: 14, display: 'block' }}>
+          <b>{y.holat_turi === 'dam_olish' ? 'Bemor hozir dam olmoqda' : 'Bemor hozir davolanmoqda'}</b>
+          <p className="muted" style={{ margin: '4px 0 10px' }}>
+            {y.holat_turi === 'dam_olish'
+              ? 'Dam olish kunlik narx boʻyicha hisoblanmoqda. Davolanishni davom ettirsa — bu YANGI KURS boʻladi va toʻliq kurs narxi yoziladi.'
+              : 'Davolanishni toʻxtatib, shu xonada dam olishga oʻtkazish mumkin — narx kunlik (xona turiga qarab) hisoblanadi.'}
+          </p>
+          <button className="btn pri sm" disabled={damBand}
+            onClick={() => holatniOzgartir(y.holat_turi === 'dam_olish' ? 'davolanish' : 'dam_olish')}>
+            {damBand ? '…' : y.holat_turi === 'dam_olish'
+              ? 'Davolanishni boshlash (yangi kurs)'
+              : 'Dam olishga oʻtkazish'}
+          </button>
+        </div>
+      )}
+
+      {faol && y.roli === 'bemor' && !y.hamroh_soni && can('royxat') && (
+        qarovchigaAylantir ? (
+          <div className="alert info" style={{ marginTop: 14, display: 'block' }}>
+            <b>Bemor qarovchiga aylanadi</b>
+            <p className="muted" style={{ margin: '4px 0 10px' }}>
+              Hozirgacha davolangan kunlari hisobda qoʻshiladi, soʻng bugundan
+              qarovchi tarifi bilan davom etadi.
+            </p>
+            <div className="row">
+              <button className="btn sm" onClick={() => setQarovchigaAylantir(false)} disabled={band}>Bekor</button>
+              <button className="btn pri sm" onClick={bemordanQarovchiga} disabled={band}>
+                {band ? '…' : 'Tasdiqlash'}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button className="btn block" style={{ marginTop: 14 }} onClick={() => setQarovchigaAylantir(true)}>
+            Qarovchiga aylantirish
           </button>
         )
       )}
@@ -1847,6 +1954,121 @@ function Uzaytirish({ y, kursKun, yop, tugadi }) {
       <div className="hint" style={{ marginTop: 10 }}>
         Uzaytirilgach bemor yana ovqat hisobiga qoʻshiladi. Narx avtomatik qayta hisoblanmaydi —
         qoʻshimcha toʻlov boʻlsa, Toʻlovlar boʻlimidan kiritiladi.
+      </div>
+    </Modal>
+  )
+}
+
+/* ============================================================
+   BEMOR MA'LUMOTLARINI TAHRIRLASH
+   (otasining ismi, tugʻilgan sana, manzil — 27_bemor_malumotlari.sql)
+   ============================================================ */
+function MalumotTahrir({ y, yop, tugadi }) {
+  const [v, setV] = useState({
+    otasining_ismi: y.otasining_ismi || '',
+    tugilgan_sana: y.tugilgan_sana || '',
+    chet_el: !!y.chet_el,
+    viloyat: y.chet_el ? (y.fuqaroligi || '') : (y.viloyat || ''),
+    tuman: y.tuman || '',
+    mahalla: y.mahalla || '', kocha: y.kocha || '',
+    uy_raqami: y.uy_raqami || '', kvartira: y.kvartira || ''
+  })
+  const [xato, setXato] = useState('')
+  const [band, setBand] = useState(false)
+  const set = (k, x) => setV((s) => ({ ...s, [k]: x }))
+
+  const tumanlar = useMemo(
+    () => (VILOYATLAR.find((r) => r.nomi === v.viloyat) || {}).tumanlar || [],
+    [v.viloyat]
+  )
+  useEffect(() => {
+    if (v.tuman && !tumanlar.includes(v.tuman)) set('tuman', '')
+  }, [tumanlar]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function saqla() {
+    setXato(''); setBand(true)
+    const { error } = await amal.bemorMalumot(y.yotqizish_id, {
+      otasining_ismi: v.otasining_ismi.trim(),
+      tugilgan_sana: v.tugilgan_sana || null,
+      viloyat: v.chet_el ? '' : v.viloyat.trim(),
+      tuman: v.chet_el ? '' : v.tuman.trim(),
+      mahalla: v.mahalla.trim(), kocha: v.kocha.trim(),
+      uy_raqami: v.uy_raqami.trim(), kvartira: v.kvartira.trim(),
+      fuqaroligi: v.chet_el ? v.viloyat.trim() : ''
+    })
+    setBand(false)
+    if (error) return setXato(xatoMatni(error))
+    tugadi(`${y.fish} maʼlumotlari saqlandi.`)
+  }
+
+  return (
+    <Modal sarlavha={`${y.fish} — qoʻshimcha maʼlumotlar`} yop={yop} kenglik={480}
+      amallar={<>
+        <button className="btn" onClick={yop} disabled={band}>Bekor</button>
+        <button className="btn pri" onClick={saqla} disabled={band}>{band ? '…' : 'Saqlash'}</button>
+      </>}>
+      {xato && <div className="alert err" style={{ marginBottom: 12 }}><span>▲</span><div>{xato}</div></div>}
+      <div className="hint" style={{ marginBottom: 12 }}>
+        Bu maʼlumotlar bemor kartasida va hujjatlarda ishlatiladi. Hammasi ixtiyoriy.
+      </div>
+
+      <div className="grid2">
+        <div className="field full">
+          <label htmlFor="mt-chet">Fuqaroligi</label>
+          <select id="mt-chet" value={v.chet_el ? '1' : '0'}
+            onChange={(e) => set('chet_el', e.target.value === '1')}>
+            <option value="0">Oʻzbekiston</option>
+            <option value="1">Chet el fuqarosi</option>
+          </select>
+        </div>
+
+        <div className="field">
+          <label htmlFor="mt-otasi">Otasining ismi</label>
+          <input id="mt-otasi" value={v.otasining_ismi}
+            onChange={(e) => set('otasining_ismi', e.target.value)} placeholder="Baxtiyorovich" />
+        </div>
+        <div className="field">
+          <label htmlFor="mt-tugsana">Tugʻilgan sanasi</label>
+          <input id="mt-tugsana" type="date" value={v.tugilgan_sana}
+            onChange={(e) => set('tugilgan_sana', e.target.value)} />
+        </div>
+
+        <div className="field">
+          <label htmlFor="mt-vil">{v.chet_el ? 'Fuqaroligi davlati' : 'Viloyat'}</label>
+          <select id="mt-vil" value={v.viloyat} onChange={(e) => set('viloyat', e.target.value)}>
+            <option value="">— tanlanmagan —</option>
+            {(v.chet_el ? SNG_DAVLATLAR : VILOYATLAR.map((r) => r.nomi)).map((n) => (
+              <option key={n} value={n}>{n}</option>
+            ))}
+          </select>
+        </div>
+        {!v.chet_el && (
+          <div className="field">
+            <label htmlFor="mt-tum">Tuman</label>
+            <select id="mt-tum" value={v.tuman} onChange={(e) => set('tuman', e.target.value)}
+              disabled={!v.viloyat}>
+              <option value="">— tanlanmagan —</option>
+              {tumanlar.map((n) => <option key={n} value={n}>{n}</option>)}
+            </select>
+          </div>
+        )}
+
+        <div className="field">
+          <label htmlFor="mt-mfy">Mahalla</label>
+          <input id="mt-mfy" value={v.mahalla} onChange={(e) => set('mahalla', e.target.value)} />
+        </div>
+        <div className="field">
+          <label htmlFor="mt-koch">Koʻcha</label>
+          <input id="mt-koch" value={v.kocha} onChange={(e) => set('kocha', e.target.value)} />
+        </div>
+        <div className="field">
+          <label htmlFor="mt-uy">Uy raqami</label>
+          <input id="mt-uy" value={v.uy_raqami} onChange={(e) => set('uy_raqami', e.target.value)} />
+        </div>
+        <div className="field">
+          <label htmlFor="mt-kv">Kvartira</label>
+          <input id="mt-kv" value={v.kvartira} onChange={(e) => set('kvartira', e.target.value)} />
+        </div>
       </div>
     </Modal>
   )
